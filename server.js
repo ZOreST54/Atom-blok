@@ -1,311 +1,815 @@
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 
-// ═══════════════════════════════════════════════════════════════
-//  ГЛАВНАЯ СТРАНИЦА
-// ═══════════════════════════════════════════════════════════════
+// ============================================
+// ВЕСЬ ФРОНТЕНД (HTML + CSS + JS)
+// ============================================
 app.get('/', (req, res) => {
-  const html = `<!DOCTYPE html>
-<html lang="ru">
+  res.send(`
+<!DOCTYPE html>
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Атом Билдер AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>Атом Билдер Pro — Scratch на JavaScript</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',sans-serif; background:#07070d; display:flex; height:100vh; color:#fff; overflow:hidden; }
-    ::-webkit-scrollbar { width:4px; }
-    ::-webkit-scrollbar-track { background:#111; }
-    ::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#00d4ff,#7b2ffc); border-radius:4px; }
-    
-    #palette { width:260px; background:linear-gradient(145deg,#0d0d1a,#07070d); padding:20px 14px; border-right:1px solid rgba(255,255,255,0.04); overflow-y:auto; flex-shrink:0; }
-    #palette h3 { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.2); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.04); }
-    .block-item { background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; margin:4px 0; cursor:grab; border:1px solid rgba(255,255,255,0.04); transition:all 0.2s; user-select:none; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:500; color:rgba(255,255,255,0.7); }
-    .block-item:hover { background:rgba(255,255,255,0.07); border-color:rgba(0,212,255,0.2); transform:translateX(4px); }
-    .block-item:active { cursor:grabbing; transform:scale(0.96); }
-    .block-item .icon { font-size:16px; width:24px; text-align:center; }
-    
-    #workspace { flex:1; display:flex; flex-direction:column; padding:16px; background:#07070d; min-width:0; }
-    #preview-container { flex:1; background:#ffffff; border-radius:14px; overflow:hidden; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.6); }
-    #preview-container iframe { width:100%; height:100%; border:none; background:#fff; }
-    
-    #script-area { background:rgba(255,255,255,0.02); padding:12px 16px; border-radius:10px; margin-top:10px; min-height:56px; display:flex; flex-wrap:wrap; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.04); }
-    #script-area .empty-hint { color:rgba(255,255,255,0.12); font-size:12px; }
-    .script-block { background:linear-gradient(135deg,#00d4ff,#7b2ffc); color:#fff; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:8px; animation:appear 0.25s; }
-    @keyframes appear { 0%{opacity:0;transform:scale(0.9);} 100%{opacity:1;transform:scale(1);} }
-    .script-block .remove { cursor:pointer; background:rgba(255,255,255,0.15); border-radius:50%; width:18px;height:18px; display:flex; align-items:center; justify-content:center; font-size:10px; transition:0.2s; }
-    .script-block .remove:hover { background:rgba(255,71,87,0.8); }
-    
-    #controls { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-    #controls button { font-family:'Inter',sans-serif; font-weight:600; font-size:12px; padding:8px 20px; border:none; border-radius:20px; cursor:pointer; transition:all 0.2s; background:linear-gradient(135deg,#00d4ff,#7b2ffc); color:#fff; }
-    #controls button:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,212,255,0.2); }
-    #controls button.secondary { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.06); }
-    #controls button.secondary:hover { background:rgba(255,255,255,0.1); color:#fff; }
-    #controls button.danger { background:linear-gradient(135deg,#ff4757,#ff2d55); }
-    #controls button.ai { background:linear-gradient(135deg,#7b2ffc,#00d4ff); }
-    
-    #status { color:rgba(255,255,255,0.12); font-size:10px; margin-top:8px; letter-spacing:0.3px; }
-    #code-output { background:#0d0d1a; padding:12px; border-radius:10px; margin-top:8px; display:none; max-height:160px; overflow-y:auto; font-family:monospace; font-size:10px; color:#00ff88; border:1px solid rgba(255,255,255,0.03); white-space:pre-wrap; word-break:break-all; }
-    
-    #ai-toggle { position:fixed; bottom:16px; right:16px; width:48px;height:48px; border-radius:50%; background:linear-gradient(135deg,#00d4ff,#7b2ffc); border:none; color:#fff; font-size:20px; cursor:pointer; box-shadow:0 8px 25px rgba(0,212,255,0.25); z-index:999; transition:0.3s; }
-    #ai-toggle:hover { transform:scale(1.05); }
-    #ai-chat { position:fixed; bottom:72px; right:16px; width:340px; max-height:440px; background:rgba(13,13,26,0.96); backdrop-filter:blur(20px); border-radius:16px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 20px 60px rgba(0,0,0,0.8); display:none; flex-direction:column; z-index:1000; overflow:hidden; }
-    #ai-chat.active { display:flex; }
-    #ai-header { padding:12px 16px; background:linear-gradient(135deg,#00d4ff,#7b2ffc); display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:13px; }
-    #ai-header button { background:none; border:none; color:#fff; font-size:16px; cursor:pointer; }
-    #ai-messages { padding:12px; overflow-y:auto; flex:1; max-height:240px; min-height:160px; }
-    #ai-messages .msg { margin-bottom:8px; padding:8px 12px; border-radius:10px; font-size:12px; line-height:1.4; max-width:85%; }
-    #ai-messages .user { background:rgba(0,212,255,0.1); margin-left:auto; color:#fff; }
-    #ai-messages .bot { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.75); }
-    #ai-input-area { display:flex; gap:6px; padding:8px 12px; border-top:1px solid rgba(255,255,255,0.04); }
-    #ai-input-area input { flex:1; padding:8px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.04); color:#fff; font-size:12px; outline:none; }
-    #ai-input-area input:focus { border-color:#00d4ff; }
-    #ai-input-area button { padding:8px 16px; border:none; border-radius:20px; background:linear-gradient(135deg,#00d4ff,#7b2ffc); color:#fff; font-weight:600; cursor:pointer; font-size:12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Верхняя панель */
+    #toolbar {
+      background: #16213e;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 2px solid #0f3460;
+      flex-shrink: 0;
+    }
+    #toolbar h1 {
+      font-size: 20px;
+      color: #00d2d3;
+    }
+    #toolbar button {
+      background: #00d2d3;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #0f0f1a;
+    }
+    #toolbar button:hover { transform: scale(1.05); background: #01a3a4; }
+    #toolbar button.danger { background: #ff4757; color: #fff; }
+    #toolbar button.danger:hover { background: #ff6b81; }
+    #toolbar .status { color: #888; font-size: 14px; margin-left: auto; }
+
+    /* Основная область */
+    #main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ===== ПАЛИТРА БЛОКОВ ===== */
+    #palette {
+      width: 200px;
+      background: #16213e;
+      padding: 15px;
+      overflow-y: auto;
+      border-right: 2px solid #0f3460;
+      flex-shrink: 0;
+    }
+    #palette h3 {
+      color: #00d2d3;
+      font-size: 14px;
+      margin: 12px 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    #palette h3:first-child { margin-top: 0; }
+    .block-item {
+      background: #1a1a3e;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin: 4px 0;
+      cursor: grab;
+      border: 2px solid transparent;
+      transition: 0.2s;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .block-item:hover {
+      border-color: #00d2d3;
+      transform: translateX(4px);
+    }
+    .block-item:active { cursor: grabbing; opacity: 0.6; }
+    .block-item .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ===== РАБОЧАЯ ОБЛАСТЬ (СКРИПТЫ + СЦЕНА) ===== */
+    #workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background: #0a0a1a;
+      min-width: 0;
+    }
+
+    /* Сцена (холст) */
+    #stage-container {
+      background: #1a1a3e;
+      border-radius: 12px;
+      overflow: hidden;
+      flex: 1;
+      min-height: 300px;
+      position: relative;
+      border: 2px solid #0f3460;
+    }
+    #stage-container canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #f0f0f0;
+      cursor: crosshair;
+    }
+
+    /* Скрипты (собранные блоки) */
+    #script-area {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 12px;
+      min-height: 80px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 2px dashed #0f3460;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 6px;
+      align-content: flex-start;
+    }
+    #script-area .empty-hint {
+      color: #666;
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* Блок в скрипте */
+    .script-block {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: default;
+      position: relative;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    .script-block .remove {
+      cursor: pointer;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      transition: 0.2s;
+    }
+    .script-block .remove:hover { background: #ff4757; transform: scale(1.2); }
+    .script-block .arg-input {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      padding: 2px 6px;
+      width: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .script-block .arg-input:focus { outline: 2px solid #00d2d3; }
+
+    /* Вложенные блоки (для repeat, if) */
+    .script-block .nested {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-left: 20px;
+      border-left: 2px solid rgba(255,255,255,0.2);
+      margin-left: 8px;
+    }
+
+    /* ===== Спрайты и переменные ===== */
+    #sidebar {
+      width: 180px;
+      background: #16213e;
+      padding: 15px;
+      border-left: 2px solid #0f3460;
+      overflow-y: auto;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+    #sidebar h4 {
+      color: #00d2d3;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 12px 0 6px 0;
+    }
+    #sidebar h4:first-child { margin-top: 0; }
+    #sidebar .sprite-item {
+      background: #1a1a3e;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    #sidebar .sprite-item:hover { border-color: #00d2d3; }
+    #sidebar .sprite-item .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    #sidebar .var-item {
+      background: #1a1a3e;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin: 3px 0;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    #sidebar .var-item .val {
+      color: #00d2d3;
+      float: right;
+    }
   </style>
 </head>
 <body>
 
-<div id="palette">
-  <h3>БЛОКИ</h3>
-  <div class="block-item" draggable="true" data-block="button"><span class="icon">◈</span> Кнопка</div>
-  <div class="block-item" draggable="true" data-block="text"><span class="icon">◉</span> Текст</div>
-  <div class="block-item" draggable="true" data-block="image"><span class="icon">◇</span> Картинка</div>
-  <div class="block-item" draggable="true" data-block="input"><span class="icon">⊚</span> Поле ввода</div>
-  <div class="block-item" draggable="true" data-block="container"><span class="icon">⊞</span> Контейнер</div>
-  <div class="block-item" draggable="true" data-block="card"><span class="icon">▣</span> Карточка</div>
-  <div class="block-item" draggable="true" data-block="grid"><span class="icon">▤</span> Сетка</div>
-  <div class="block-item" draggable="true" data-block="form"><span class="icon">◫</span> Форма</div>
-  <div class="block-item" draggable="true" data-block="table"><span class="icon">⊞</span> Таблица</div>
-  <div class="block-item" draggable="true" data-block="chart"><span class="icon">◊</span> График</div>
-  <div class="block-item" draggable="true" data-block="game"><span class="icon">✦</span> Игра</div>
-  <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.04);padding-top:12px;color:rgba(255,255,255,0.06);font-size:9px;">перетащи блок в область снизу</div>
+<!-- ===== ТУЛБАР ===== -->
+<div id="toolbar">
+  <h1>🧩 Атом Билдер Pro</h1>
+  <button id="run-btn">▶️ Выполнить</button>
+  <button id="stop-btn" class="danger">⏹ Остановить</button>
+  <button id="reset-btn" class="danger">🔄 Сбросить</button>
+  <span class="status" id="status">✅ Готово</span>
 </div>
 
-<div id="workspace">
-  <div id="preview-container">
-    <iframe id="preview" srcdoc="<html><head><style>body{font-family:'Inter',sans-serif;background:linear-gradient(145deg,#f5f7fa,#eef2f7);display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#1a1a2e;}</style></head><body><div style='text-align:center;'><div style='font-size:40px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#7b2ffc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>✦</div><h1 style='font-size:24px;font-weight:700;margin:8px 0 4px;'>Атом Билдер AI</h1><p style='color:#888;font-size:13px;'>собирай свои приложения из блоков</p></div></body></html>"></iframe>
+<!-- ===== ОСНОВНАЯ ОБЛАСТЬ ===== -->
+<div id="main">
+  <!-- Палитра блоков -->
+  <div id="palette">
+    <h3>🎯 Motion</h3>
+    <div class="block-item" data-block="move"><span class="color-dot" style="background:#4C97FF;"></span> move 10 steps</div>
+    <div class="block-item" data-block="turn"><span class="color-dot" style="background:#4C97FF;"></span> turn 15 degrees</div>
+    <div class="block-item" data-block="goto"><span class="color-dot" style="background:#4C97FF;"></span> go to x: 0 y: 0</div>
+    <div class="block-item" data-block="glide"><span class="color-dot" style="background:#4C97FF;"></span> glide 1 secs to x: 0 y: 0</div>
+    <div class="block-item" data-block="bounce"><span class="color-dot" style="background:#4C97FF;"></span> if on edge, bounce</div>
+
+    <h3>🔁 Controls</h3>
+    <div class="block-item" data-block="repeat"><span class="color-dot" style="background:#FFAB19;"></span> repeat 10</div>
+    <div class="block-item" data-block="forever"><span class="color-dot" style="background:#FFAB19;"></span> forever</div>
+    <div class="block-item" data-block="if"><span class="color-dot" style="background:#FFAB19;"></span> if condition</div>
+
+    <h3>👀 Looks</h3>
+    <div class="block-item" data-block="say"><span class="color-dot" style="background:#9966FF;"></span> say Hello! for 2 secs</div>
+    <div class="block-item" data-block="show"><span class="color-dot" style="background:#9966FF;"></span> show</div>
+    <div class="block-item" data-block="hide"><span class="color-dot" style="background:#9966FF;"></span> hide</div>
+    <div class="block-item" data-block="size"><span class="color-dot" style="background:#9966FF;"></span> set size to 100%</div>
+
+    <h3>📦 Variables</h3>
+    <div class="block-item" data-block="set_var"><span class="color-dot" style="background:#FF8C1A;"></span> set var to 0</div>
+    <div class="block-item" data-block="change_var"><span class="color-dot" style="background:#FF8C1A;"></span> change var by 1</div>
+    <div class="block-item" data-block="add_list"><span class="color-dot" style="background:#FF8C1A;"></span> add to list</div>
+
+    <h3>🔵 Operators</h3>
+    <div class="block-item" data-block="add"><span class="color-dot" style="background:#59C059;"></span> add ( + )</div>
+    <div class="block-item" data-block="mod"><span class="color-dot" style="background:#59C059;"></span> mod</div>
+
+    <h3>🔄 Pen</h3>
+    <div class="block-item" data-block="pen_down"><span class="color-dot" style="background:#00b894;"></span> pen down</div>
+    <div class="block-item" data-block="pen_up"><span class="color-dot" style="background:#00b894;"></span> pen up</div>
+    <div class="block-item" data-block="clear"><span class="color-dot" style="background:#00b894;"></span> clear</div>
   </div>
 
-  <div id="script-area">
-    <span class="empty-hint">бросьте блок сюда</span>
+  <!-- Рабочая область -->
+  <div id="workspace">
+    <div id="stage-container">
+      <canvas id="stage"></canvas>
+    </div>
+    <div id="script-area">
+      <span class="empty-hint">📋 Брось блок сюда, чтобы собрать скрипт</span>
+    </div>
   </div>
 
-  <div id="controls">
-    <button id="run-btn">▶ Опубликовать</button>
-    <button id="export-btn" class="secondary">⬇ Экспорт</button>
-    <button id="clear-btn" class="danger">✕ Очистить</button>
-    <button id="ai-btn" class="ai">🤖 AI</button>
+  <!-- Спрайты и переменные -->
+  <div id="sidebar">
+    <h4>🎭 Спрайты</h4>
+    <div id="sprite-list">
+      <div class="sprite-item" data-sprite="0">
+        <span class="dot" style="background:#ff6b6b;"></span> Кот
+      </div>
+    </div>
+    <h4>📊 Переменные</h4>
+    <div id="var-list">
+      <div class="var-item"><span>score</span> <span class="val">0</span></div>
+      <div class="var-item"><span>primes</span> <span class="val">[]</span></div>
+    </div>
   </div>
-
-  <div id="status">готово</div>
-  <div id="code-output"></div>
 </div>
 
-<button id="ai-toggle">🤖</button>
-<div id="ai-chat">
-  <div id="ai-header"><span>🤖 AI-помощник</span><button id="ai-close">✕</button></div>
-  <div id="ai-messages"><div class="msg bot">Привет! Напиши, что хочешь создать.</div></div>
-  <div id="ai-input-area"><input id="ai-input" placeholder="Напиши..." /><button id="ai-send">→</button></div>
-</div>
-
+<!-- ========================================== -->
+<!-- ===== ВЕСЬ JS ===== -->
+<!-- ========================================== -->
 <script>
-const scriptArea = document.getElementById('script-area');
-const scriptBlocks = [];
-let idCounter = 0;
+// ============================================
+// 1. СЦЕНА (Canvas + Спрайты)
+// ============================================
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+let W, H;
 
-document.querySelectorAll('.block-item').forEach(b => {
-  b.addEventListener('dragstart', e => e.dataTransfer.setData('blockType', b.dataset.block));
-});
-scriptArea.addEventListener('dragover', e => e.preventDefault());
-scriptArea.addEventListener('drop', e => {
-  e.preventDefault();
-  const type = e.dataTransfer.getData('blockType');
-  if (!type) return;
-  scriptBlocks.push({ type, id: ++idCounter, props: getProps(type) });
-  renderAll();
-});
+function resizeCanvas() {
+  const container = document.getElementById('stage-container');
+  W = canvas.width = container.clientWidth;
+  H = canvas.height = container.clientHeight;
+  render();
+}
+window.addEventListener('resize', resizeCanvas);
 
-function getProps(type) {
-  const map = {
-    button: { text: 'Кнопка' },
-    text: { content: 'Мой текст', size: '16px' },
-    image: { src: 'https://picsum.photos/seed/atom/300/200' },
-    input: { placeholder: 'введите...' },
-    container: { bg: 'rgba(255,255,255,0.04)', padding: '16px' },
-    card: { title: 'Заголовок', content: 'Текст карточки' },
-    grid: { cols: '3' },
-    form: { action: '/' },
-    table: { rows: '3', cols: '3' },
-    chart: { type: 'bar' },
-    game: { title: 'Моя игра' }
-  };
-  return map[type] || {};
+// Спрайты
+let sprites = [
+  { id: 0, name: 'Кот', x: 200, y: 200, angle: 0, size: 40, visible: true, color: '#ff6b6b', penDown: false }
+];
+let currentSpriteIndex = 0;
+let penTrail = [];
+let variables = { score: 0, primes: [] };
+let running = false;
+let scriptBlocks = [];
+let blockIdCounter = 0;
+
+// Рендер сцены
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  
+  // Рисуем сетку
+  ctx.strokeStyle = '#e0e0e0';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 50) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 50) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+  
+  // Рисуем следы пера
+  if (penTrail.length > 1) {
+    ctx.strokeStyle = '#2d3436';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(penTrail[0].x, penTrail[0].y);
+    for (let i = 1; i < penTrail.length; i++) {
+      ctx.lineTo(penTrail[i].x, penTrail[i].y);
+    }
+    ctx.stroke();
+  }
+  
+  // Рисуем спрайты
+  sprites.forEach(sprite => {
+    if (!sprite.visible) return;
+    
+    ctx.save();
+    ctx.translate(sprite.x, sprite.y);
+    ctx.rotate(sprite.angle * Math.PI / 180);
+    
+    // Тень
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = 10;
+    
+    // Тело
+    ctx.fillStyle = sprite.color;
+    ctx.beginPath();
+    ctx.arc(0, 0, sprite.size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Глаза
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-sprite.size*0.3, -sprite.size*0.2, sprite.size*0.25, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(sprite.size*0.3, -sprite.size*0.2, sprite.size*0.25, 0, Math.PI*2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#2d3436';
+    ctx.beginPath();
+    ctx.arc(-sprite.size*0.2, -sprite.size*0.15, sprite.size*0.12, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(sprite.size*0.4, -sprite.size*0.15, sprite.size*0.12, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Рот
+    ctx.strokeStyle = '#2d3436';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, sprite.size*0.1, sprite.size*0.2, 0, Math.PI);
+    ctx.stroke();
+    
+    // Имя
+    ctx.restore();
+    ctx.fillStyle = '#333';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(sprite.name, sprite.x, sprite.y + sprite.size + 20);
+  });
+  
+  // Обновляем переменные в сайдбаре
+  updateVariables();
 }
 
-function removeBlock(i) { scriptBlocks.splice(i,1); renderAll(); }
+// ============================================
+// 2. БЛОКИ (палитра → скрипт)
+// ============================================
+const scriptArea = document.getElementById('script-area');
 
+// Перетаскивание из палитры
+document.querySelectorAll('.block-item').forEach(block => {
+  block.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('blockType', block.dataset.block);
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+});
+
+scriptArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+});
+
+scriptArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const blockType = e.dataTransfer.getData('blockType');
+  if (!blockType) return;
+  
+  // Добавляем блок с параметрами по умолчанию
+  scriptBlocks.push({
+    id: ++blockIdCounter,
+    type: blockType,
+    args: getDefaultArgs(blockType),
+    children: []
+  });
+  
+  renderScript();
+  document.getElementById('status').textContent = '✅ Блок добавлен';
+});
+
+function getDefaultArgs(type) {
+  switch(type) {
+    case 'move': return { steps: 10 };
+    case 'turn': return { degrees: 15 };
+    case 'goto': return { x: 0, y: 0 };
+    case 'glide': return { secs: 1, x: 0, y: 0 };
+    case 'repeat': return { times: 10 };
+    case 'forever': return {};
+    case 'if': return { condition: 'score > 5' };
+    case 'say': return { text: 'Hello!', secs: 2 };
+    case 'size': return { size: 100 };
+    case 'set_var': return { name: 'score', value: 0 };
+    case 'change_var': return { name: 'score', amount: 1 };
+    case 'add_list': return { name: 'primes', value: '2' };
+    case 'add': return { a: 0, b: 0 };
+    case 'mod': return { a: 0, b: 0 };
+    default: return {};
+  }
+}
+
+// Удаление блока
+function removeBlock(index) {
+  scriptBlocks.splice(index, 1);
+  renderScript();
+  render();
+}
+
+// Рендер скрипта
 function renderScript() {
   scriptArea.innerHTML = '';
-  if (!scriptBlocks.length) { scriptArea.innerHTML = '<span class="empty-hint">бросьте блок сюда</span>'; return; }
-  scriptBlocks.forEach((b,i) => {
+  
+  if (scriptBlocks.length === 0) {
+    scriptArea.innerHTML = '<span class="empty-hint">📋 Брось блок сюда, чтобы собрать скрипт</span>';
+    return;
+  }
+  
+  scriptBlocks.forEach((block, index) => {
     const div = document.createElement('div');
     div.className = 'script-block';
-    const labels = {
-      button: '◈ ' + b.props.text,
-      text: '◉ ' + b.props.content,
-      image: '◇ Картинка',
-      input: '⊚ ' + b.props.placeholder,
-      container: '⊞ Контейнер',
-      card: '▣ ' + b.props.title,
-      grid: '▤ Сетка',
-      form: '◫ Форма',
-      table: '⊞ Таблица',
-      chart: '◊ График',
-      game: '✦ ' + b.props.title
-    };
-    div.innerHTML = (labels[b.type] || b.type) + ' <span class="remove" data-i="'+i+'">✕</span>';
+    div.style.background = getBlockColor(block.type);
+    
+    let label = getBlockLabel(block, block.args);
+    div.innerHTML = \`
+      \${label}
+      <span class="remove" data-index="\${index}">✕</span>
+    \`;
+    
     scriptArea.appendChild(div);
   });
+  
   document.querySelectorAll('.remove').forEach(btn => {
-    btn.addEventListener('click', () => removeBlock(parseInt(btn.dataset.i)));
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.index);
+      removeBlock(idx);
+    });
   });
 }
 
-function generateHTML() {
-  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Моё приложение</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:"Inter",sans-serif;background:#f5f7fa;min-height:100vh;padding:20px;color:#1a1a2e;}.container{max-width:1200px;margin:0 auto;}.glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:16px;}.btn{background:linear-gradient(135deg,#00d4ff,#7b2ffc);color:#fff;border:none;padding:10px 20px;border-radius:24px;font-weight:600;cursor:pointer;transition:0.2s;}.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,212,255,0.2);}.input{padding:10px 14px;border:1px solid rgba(0,0,0,0.06);border-radius:24px;font-size:14px;width:100%;max-width:280px;outline:none;}.input:focus{border-color:#00d4ff;}.grid{display:grid;gap:12px;}.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.02);}.card h3{font-size:16px;margin-bottom:6px;}table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}th,td{padding:10px 14px;text-align:left;border-bottom:1px solid rgba(0,0,0,0.04);}th{background:rgba(0,0,0,0.02);font-weight:600;}</style></head><body><div class="container">';
+function getBlockColor(type) {
+  const colors = {
+    move: '#4C97FF', turn: '#4C97FF', goto: '#4C97FF', glide: '#4C97FF', bounce: '#4C97FF',
+    repeat: '#FFAB19', forever: '#FFAB19', if: '#FFAB19',
+    say: '#9966FF', show: '#9966FF', hide: '#9966FF', size: '#9966FF',
+    set_var: '#FF8C1A', change_var: '#FF8C1A', add_list: '#FF8C1A',
+    add: '#59C059', mod: '#59C059',
+    pen_down: '#00b894', pen_up: '#00b894', clear: '#00b894'
+  };
+  return colors[type] || '#666';
+}
+
+function getBlockLabel(block, args) {
+  const labels = {
+    move: \`➡️ move \${args.steps} steps\`,
+    turn: \`↺ turn \${args.degrees} degrees\`,
+    goto: \`📍 go to x: \${args.x} y: \${args.y}\`,
+    glide: \`🕊️ glide \${args.secs}s to x: \${args.x} y: \${args.y}\`,
+    bounce: '↕ if on edge, bounce',
+    repeat: \`🔁 repeat \${args.times}\`,
+    forever: '🔁 forever',
+    if: \`❓ if \${args.condition}\`,
+    say: \`💬 say "\${args.text}" for \${args.secs}s\`,
+    show: '👀 show',
+    hide: '🙈 hide',
+    size: \`📐 set size to \${args.size}%\`,
+    set_var: \`📦 set \${args.name} to \${args.value}\`,
+    change_var: \`📦 change \${args.name} by \${args.amount}\`,
+    add_list: \`📋 add \${args.value} to \${args.name}\`,
+    add: \`➕ \${args.a} + \${args.b}\`,
+    mod: \`🔢 \${args.a} mod \${args.b}\`,
+    pen_down: '🖊️ pen down',
+    pen_up: '✋ pen up',
+    clear: '🧹 clear'
+  };
+  return labels[block.type] || block.type;
+}
+
+// ============================================
+// 3. ИСПОЛНИТЕЛЬ (интерпретатор)
+// ============================================
+function executeScript() {
+  if (running) return;
+  running = true;
+  document.getElementById('status').textContent = '▶️ Выполняется...';
   
-  scriptBlocks.forEach(b => {
-    switch(b.type) {
-      case 'button': html += '<button class="btn" style="margin:6px;" onclick="alert(123)">'+b.props.text+'</button>'; break;
-      case 'text': html += '<div style="font-size:'+b.props.size+';padding:6px 0;">'+b.props.content+'</div>'; break;
-      case 'image': html += '<img src="'+b.props.src+'" style="max-width:100%;border-radius:10px;margin:6px 0;" />'; break;
-      case 'input': html += '<input class="input" type="text" placeholder="'+b.props.placeholder+'" style="margin:6px 0;" />'; break;
-      case 'container': html += '<div class="glass" style="background:'+b.props.bg+';padding:'+b.props.padding+';margin:6px 0;">Контейнер</div>'; break;
-      case 'card': html += '<div class="card"><h3>'+b.props.title+'</h3><p>'+b.props.content+'</p></div>'; break;
-      case 'grid': html += '<div class="grid" style="grid-template-columns:repeat('+b.props.cols+',1fr);">'+Array.from({length:parseInt(b.props.cols)||3}, (_,i) => '<div class="card" style="min-height:60px;">'+(i+1)+'</div>').join('')+'</div>'; break;
-      case 'form': html += '<form class="glass" style="padding:16px;display:flex;flex-direction:column;gap:10px;max-width:360px;margin:6px 0;"><input class="input" placeholder="Имя" /><input class="input" placeholder="Email" type="email" /><button class="btn" type="submit">Отправить</button></form>'; break;
-      case 'table': const r=parseInt(b.props.rows)||3, c=parseInt(b.props.cols)||3; html += '<table><thead><tr>'+Array.from({length:c}, (_,i) => '<th>Заголовок '+(i+1)+'</th>').join('')+'</tr></thead><tbody>'+Array.from({length:r}, () => '<tr>'+Array.from({length:c}, () => '<td>Данные</td>').join('')+'</tr>').join('')+'</tbody></table>'; break;
-      case 'chart': html += '<div class="glass" style="padding:16px;height:160px;display:flex;align-items:flex-end;gap:6px;margin:6px 0;">'+[35,48,22,68,54,72,40,90,55,70,45,85].map(v => '<div style="flex:1;background:linear-gradient(180deg,#00d4ff,#7b2ffc);border-radius:4px;height:'+v+'%;min-height:10px;"></div>').join('')+'</div>'; break;
-      case 'game': html += '<div class="glass" style="text-align:center;padding:24px;"><h3>🎮 '+b.props.title+'</h3><div style="font-size:40px;margin:12px 0;" id="gs">0</div><button class="btn" onclick="let s=document.getElementById(\\'gs\\');s.textContent=parseInt(s.textContent)+1;">Кликни</button></div>'; break;
+  // Сброс состояния (кроме переменных)
+  penTrail = [];
+  sprites.forEach(s => { s.x = 200; s.y = 200; s.angle = 0; s.penDown = false; });
+  
+  const sprite = sprites[currentSpriteIndex];
+  
+  // Проходим по всем блокам
+  scriptBlocks.forEach(block => {
+    if (!running) return;
+    executeBlock(block, sprite);
+  });
+  
+  running = false;
+  document.getElementById('status').textContent = '✅ Выполнено!';
+  render();
+}
+
+function executeBlock(block, sprite) {
+  if (!sprite) sprite = sprites[currentSpriteIndex];
+  
+  switch(block.type) {
+    case 'move': {
+      const rad = sprite.angle * Math.PI / 180;
+      const dx = block.args.steps * Math.cos(rad);
+      const dy = block.args.steps * Math.sin(rad);
+      if (sprite.penDown) {
+        penTrail.push({ x: sprite.x, y: sprite.y });
+        penTrail.push({ x: sprite.x + dx, y: sprite.y + dy });
+      }
+      sprite.x += dx;
+      sprite.y += dy;
+      break;
     }
-  });
+    case 'turn': {
+      sprite.angle += block.args.degrees;
+      break;
+    }
+    case 'goto': {
+      sprite.x = block.args.x;
+      sprite.y = block.args.y;
+      break;
+    }
+    case 'glide': {
+      const steps = 20;
+      const dx = (block.args.x - sprite.x) / steps;
+      const dy = (block.args.y - sprite.y) / steps;
+      for (let i = 0; i < steps; i++) {
+        sprite.x += dx;
+        sprite.y += dy;
+        render();
+      }
+      break;
+    }
+    case 'bounce': {
+      if (sprite.x < 0 || sprite.x > W) sprite.angle = 180 - sprite.angle;
+      if (sprite.y < 0 || sprite.y > H) sprite.angle = -sprite.angle;
+      break;
+    }
+    case 'repeat': {
+      for (let i = 0; i < block.args.times; i++) {
+        if (!running) break;
+        // Выполняем дочерние блоки (если есть)
+        if (block.children) {
+          block.children.forEach(child => executeBlock(child, sprite));
+        }
+      }
+      break;
+    }
+    case 'forever': {
+      // Просто выполняем дочерние блоки (бесконечно)
+      if (block.children) {
+        block.children.forEach(child => executeBlock(child, sprite));
+      }
+      break;
+    }
+    case 'if': {
+      // Простая проверка (eval)
+      try {
+        const condition = block.args.condition.replace(/score/g, variables.score);
+        if (eval(condition)) {
+          if (block.children) {
+            block.children.forEach(child => executeBlock(child, sprite));
+          }
+        }
+      } catch(e) {}
+      break;
+    }
+    case 'say': {
+      document.getElementById('status').textContent = \`💬 "\${block.args.text}"\`;
+      setTimeout(() => {}, block.args.secs * 1000);
+      break;
+    }
+    case 'show': {
+      sprite.visible = true;
+      break;
+    }
+    case 'hide': {
+      sprite.visible = false;
+      break;
+    }
+    case 'size': {
+      sprite.size = block.args.size * 0.4;
+      break;
+    }
+    case 'set_var': {
+      variables[block.args.name] = block.args.value;
+      break;
+    }
+    case 'change_var': {
+      variables[block.args.name] = (variables[block.args.name] || 0) + block.args.amount;
+      break;
+    }
+    case 'add_list': {
+      if (!variables[block.args.name]) variables[block.args.name] = [];
+      variables[block.args.name].push(block.args.value);
+      break;
+    }
+    case 'add': {
+      const result = block.args.a + block.args.b;
+      document.getElementById('status').textContent = \`➕ \${block.args.a} + \${block.args.b} = \${result}\`;
+      break;
+    }
+    case 'mod': {
+      const result = block.args.a % block.args.b;
+      document.getElementById('status').textContent = \`🔢 \${block.args.a} mod \${block.args.b} = \${result}\`;
+      break;
+    }
+    case 'pen_down': {
+      sprite.penDown = true;
+      break;
+    }
+    case 'pen_up': {
+      sprite.penDown = false;
+      break;
+    }
+    case 'clear': {
+      penTrail = [];
+      break;
+    }
+  }
+  render();
+}
+
+// ============================================
+// 4. УПРАВЛЕНИЕ
+// ============================================
+document.getElementById('run-btn').addEventListener('click', executeScript);
+
+document.getElementById('stop-btn').addEventListener('click', () => {
+  running = false;
+  document.getElementById('status').textContent = '⏹ Остановлено';
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  running = false;
+  scriptBlocks = [];
+  blockIdCounter = 0;
+  penTrail = [];
+  sprites.forEach(s => { s.x = 200; s.y = 200; s.angle = 0; s.penDown = false; s.visible = true; });
+  variables = { score: 0, primes: [] };
+  renderScript();
+  render();
+  document.getElementById('status').textContent = '🔄 Сброшено';
+});
+
+function updateVariables() {
+  const list = document.getElementById('var-list');
+  list.innerHTML = '';
+  for (let key in variables) {
+    const val = Array.isArray(variables[key]) ? JSON.stringify(variables[key]) : variables[key];
+    list.innerHTML += \`<div class="var-item"><span>\${key}</span> <span class="val">\${val}</span></div>\`;
+  }
+}
+
+// ============================================
+// 5. КЛИК ПО СЦЕНЕ (перемещение спрайта)
+// ============================================
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (W / rect.width);
+  const y = (e.clientY - rect.top) * (H / rect.height);
   
-  html += '</div></body></html>';
-  return html;
+  const sprite = sprites[currentSpriteIndex];
+  sprite.x = x;
+  sprite.y = y;
+  render();
+});
+
+// ============================================
+// 6. ИНИЦИАЛИЗАЦИЯ
+// ============================================
+resizeCanvas();
+render();
+document.getElementById('status').textContent = '✅ Готово! Бросай блоки и нажимай "Выполнить"';
+
+// Анимация (для демонстрации)
+let demoInterval = null;
+function startDemo() {
+  if (demoInterval) clearInterval(demoInterval);
+  demoInterval = setInterval(() => {
+    const sprite = sprites[0];
+    sprite.angle += 1;
+    render();
+  }, 50);
 }
+// Раскомментируй для демо:
+// startDemo();
 
-function renderPreview() {
-  document.getElementById('preview').srcdoc = generateHTML();
-}
-
-function renderAll() { renderScript(); renderPreview(); }
-
-document.getElementById('run-btn').addEventListener('click', () => { renderPreview(); status('опубликовано'); });
-document.getElementById('export-btn').addEventListener('click', () => {
-  const blob = new Blob([generateHTML()], {type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'app.html';
-  a.click();
-  status('экспортировано');
-});
-document.getElementById('clear-btn').addEventListener('click', () => {
-  scriptBlocks.length = 0; idCounter = 0;
-  renderAll();
-  document.getElementById('code-output').style.display = 'none';
-  status('очищено');
-});
-
-let codeVisible = false;
-document.getElementById('preview-container').addEventListener('dblclick', () => {
-  const out = document.getElementById('code-output');
-  if (codeVisible) { out.style.display = 'none'; codeVisible = false; }
-  else { out.textContent = generateHTML(); out.style.display = 'block'; codeVisible = true; }
-});
-
-function status(msg) { document.getElementById('status').textContent = msg; }
-
-// AI
-const aiToggle = document.getElementById('ai-toggle');
-const aiChat = document.getElementById('ai-chat');
-const aiClose = document.getElementById('ai-close');
-const aiInput = document.getElementById('ai-input');
-const aiSend = document.getElementById('ai-send');
-const aiMessages = document.getElementById('ai-messages');
-
-aiToggle.addEventListener('click', () => {
-  aiChat.classList.toggle('active');
-  aiToggle.style.display = aiChat.classList.contains('active') ? 'none' : 'flex';
-});
-aiClose.addEventListener('click', () => {
-  aiChat.classList.remove('active');
-  aiToggle.style.display = 'flex';
-});
-
-function addMsg(text, type) {
-  const div = document.createElement('div');
-  div.className = 'msg ' + type;
-  div.textContent = text;
-  aiMessages.appendChild(div);
-  aiMessages.scrollTop = aiMessages.scrollHeight;
-}
-
-function aiResponse(q) {
-  const blocks = scriptBlocks.map(b => b.type).join(', ') || 'пока пусто';
-  const tips = [
-    'Попробуй добавить карточки для контента.',
-    'Используй сетку для расположения элементов.',
-    'Форма поможет собирать данные от пользователей.',
-    'График визуализирует данные.',
-    'Игра — простой кликер для развлечения.',
-    'Таблица подходит для структурированных данных.',
-    'Контейнер группирует блоки.',
-    'Собери лендинг из кнопки, текста и картинки.',
-    'Сейчас у тебя: ' + blocks + '. Добавь что-то ещё!'
-  ];
-  return tips[Math.floor(Math.random() * tips.length)];
-}
-
-aiSend.addEventListener('click', () => {
-  const t = aiInput.value.trim();
-  if (!t) return;
-  addMsg(t, 'user');
-  aiInput.value = '';
-  setTimeout(() => { addMsg(aiResponse(t), 'bot'); }, 300);
-});
-aiInput.addEventListener('keydown', e => { if (e.key === 'Enter') aiSend.click(); });
-
-renderAll();
-console.log('Атом Билдер AI загружен');
-<\/script>
+console.log('🧩 Атом Билдер Pro загружен!');
+console.log('📦 Перетащи блоки и нажми "Выполнить"');
+</script>
 </body>
-</html>`;
-  res.send(html);
+</html>
+  `);
 });
 
-// ═══════════════════════════════════════════════════════════════
-//  API
-// ═══════════════════════════════════════════════════════════════
-app.post('/api/generate', (req, res) => {
-  const { blocks } = req.body;
-  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Приложение</title><style>body{font-family:"Inter",sans-serif;padding:20px;background:#f5f7fa;}</style></head><body>';
-  blocks.forEach(b => {
-    if (b.type === 'button') html += '<button style="padding:10px 20px;background:#00d4ff;border:none;border-radius:24px;color:#fff;">'+b.props.text+'</button>';
-    else if (b.type === 'text') html += '<p>'+b.props.content+'</p>';
-    else if (b.type === 'image') html += '<img src="'+b.props.src+'" style="max-width:100%;" />';
-    else if (b.type === 'input') html += '<input placeholder="'+b.props.placeholder+'" style="padding:10px;border-radius:24px;border:1px solid #ddd;" />';
-    else if (b.type === 'container') html += '<div style="background:'+b.props.bg+';padding:'+b.props.padding+';border-radius:12px;">Контейнер</div>';
-    else if (b.type === 'card') html += '<div style="background:#fff;padding:16px;border-radius:12px;"><h3>'+b.props.title+'</h3><p>'+b.props.content+'</p></div>';
-    else if (b.type === 'game') html += '<div style="text-align:center;padding:20px;"><h3>'+b.props.title+'</h3><div id="s">0</div><button onclick="document.getElementById(\\'s\\').textContent++">Клик</button></div>';
-    else html += '<div>'+b.type+'</div>';
-  });
-  html += '</body></html>';
-  res.json({ html });
-});
-
+// ============================================
+// ЗАПУСК СЕРВЕРА
+// ============================================
 app.listen(PORT, () => {
-  console.log('Атом Билдер AI запущен на http://localhost:' + PORT);
+  console.log(`🚀 Атом Билдер Pro запущен на http://localhost:${PORT}`);
+  console.log(`🧩 Полноценный Scratch-подобный визуальный язык!`);
 });
