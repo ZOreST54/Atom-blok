@@ -8,8 +8,7 @@ app.use(express.json());
 // ПОЛНЫЙ ФРОНТЕНД — ВСЁ В ОДНОМ
 // ============================================
 app.get('/', (req, res) => {
-  res.send(\`
-<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -26,8 +25,6 @@ app.get('/', (req, res) => {
       color: #fff;
       overflow: hidden;
     }
-
-    /* ТУЛБАР */
     #toolbar {
       background: #1a1a2e;
       padding: 8px 16px;
@@ -83,11 +80,7 @@ app.get('/', (req, res) => {
     #status-bar .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     #status-bar .dot.green { background: #2ed573; }
     #status-bar .dot.red { background: #ff4757; }
-
-    /* ОСНОВНАЯ ОБЛАСТЬ */
     #main { display: flex; flex: 1; min-height: 0; }
-
-    /* ЛЕВАЯ ПАНЕЛЬ — БЛОКИ */
     #left-panel {
       width: 180px;
       background: #1a1a2e;
@@ -120,8 +113,6 @@ app.get('/', (req, res) => {
     .block-item:hover { border-color: #00d2d3; transform: translateX(3px); }
     .block-item:active { cursor: grabbing; opacity: 0.6; }
     .block-item .icon { font-size: 13px; }
-
-    /* ЦЕНТР */
     #workspace {
       flex: 1;
       display: flex;
@@ -130,8 +121,6 @@ app.get('/', (req, res) => {
       background: #0a0a1a;
       min-width: 0;
     }
-
-    /* Превью */
     #preview-container {
       background: #1a1a3e;
       border-radius: 8px;
@@ -147,8 +136,6 @@ app.get('/', (req, res) => {
       border: none;
       background: #fff;
     }
-
-    /* Скрипты */
     #script-area {
       background: #1a1a2e;
       border-radius: 6px;
@@ -195,19 +182,6 @@ app.get('/', (req, res) => {
       transition: 0.2s;
     }
     .script-block .remove:hover { background: #ff4757; transform: scale(1.2); }
-    .script-block .arg-input {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      border-radius: 3px;
-      color: #fff;
-      padding: 1px 4px;
-      width: 35px;
-      font-size: 10px;
-      text-align: center;
-    }
-    .script-block .arg-input:focus { outline: 2px solid #00d2d3; }
-
-    /* ПРАВАЯ ПАНЕЛЬ */
     #right-panel {
       width: 200px;
       background: #1a1a2e;
@@ -254,8 +228,6 @@ app.get('/', (req, res) => {
     }
     .var-item .val { color: #00d2d3; }
     .var-item .type { color: #888; font-size: 8px; }
-
-    /* МОДАЛКА */
     #modal {
       display: none;
       position: fixed;
@@ -306,8 +278,6 @@ app.get('/', (req, res) => {
   </style>
 </head>
 <body>
-
-<!-- ТУЛБАР -->
 <div id="toolbar">
   <h1>📱 App Builder <span>Pro</span></h1>
   <button id="run-btn">▶️ Запустить</button>
@@ -320,38 +290,27 @@ app.get('/', (req, res) => {
     <span id="status-text">Готов</span>
   </div>
 </div>
-
-<!-- ОСНОВНАЯ ОБЛАСТЬ -->
 <div id="main">
-  <!-- Левая панель -->
   <div id="left-panel">
     <h3>🎯 Действия</h3>
-    <div class="block-item" data-block='{"type":"show_message"}'><span class="icon">💬</span> Показать сообщение</div>
-    <div class="block-item" data-block='{"type":"set_var"}'><span class="icon">📦</span> Присвоить переменную</div>
-    <div class="block-item" data-block='{"type":"if_var"}'><span class="icon">❓</span> Если условие</div>
-    <div class="block-item" data-block='{"type":"input_dialog"}'><span class="icon">✏️</span> Запросить ввод</div>
-
+    <div class="block-item" data-block="show_message"><span class="icon">💬</span> Показать сообщение</div>
+    <div class="block-item" data-block="set_var"><span class="icon">📦</span> Присвоить переменную</div>
+    <div class="block-item" data-block="if_var"><span class="icon">❓</span> Если условие</div>
+    <div class="block-item" data-block="input_dialog"><span class="icon">✏️</span> Запросить ввод</div>
     <h3>📱 UI элементы</h3>
-    <div class="block-item" data-block='{"type":"button"}'><span class="icon">🔘</span> Кнопка</div>
-    <div class="block-item" data-block='{"type":"text"}'><span class="icon">📝</span> Текст</div>
-    <div class="block-item" data-block='{"type":"input"}'><span class="icon">📥</span> Поле ввода</div>
-    <div class="block-item" data-block='{"type":"image"}'><span class="icon">🖼️</span> Картинка</div>
-    <div class="block-item" data-block='{"type":"container"}'><span class="icon">📦</span> Контейнер</div>
-
+    <div class="block-item" data-block="button"><span class="icon">🔘</span> Кнопка</div>
+    <div class="block-item" data-block="text"><span class="icon">📝</span> Текст</div>
+    <div class="block-item" data-block="input"><span class="icon">📥</span> Поле ввода</div>
+    <div class="block-item" data-block="image"><span class="icon">🖼️</span> Картинка</div>
+    <div class="block-item" data-block="container"><span class="icon">📦</span> Контейнер</div>
     <h3>🔄 Управление</h3>
-    <div class="block-item" data-block='{"type":"loop"}'><span class="icon">🔄</span> Цикл</div>
-    <div class="block-item" data-block='{"type":"delay"}'><span class="icon">⏳</span> Задержка</div>
-
+    <div class="block-item" data-block="loop"><span class="icon">🔄</span> Цикл</div>
+    <div class="block-item" data-block="delay"><span class="icon">⏳</span> Задержка</div>
     <h3>📊 Данные</h3>
-    <div class="block-item" data-block='{"type":"list_add"}'><span class="icon">📋</span> Добавить в список</div>
-    <div class="block-item" data-block='{"type":"list_get"}'><span class="icon">📋</span> Взять из списка</div>
-
-    <div style="margin-top:12px;padding-top:10px;border-top:1px solid #2a2a4a;color:#666;font-size:9px;">
-      💡 Перетащи блок в область скрипта
-    </div>
+    <div class="block-item" data-block="list_add"><span class="icon">📋</span> Добавить в список</div>
+    <div class="block-item" data-block="list_get"><span class="icon">📋</span> Взять из списка</div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid #2a2a4a;color:#666;font-size:9px;">💡 Перетащи блок в область скрипта</div>
   </div>
-
-  <!-- Центр -->
   <div id="workspace">
     <div id="preview-container">
       <iframe id="preview" srcdoc="<html><body style='font-family:sans-serif;padding:20px;background:#f5f5f5;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;'><div style='text-align:center;color:#888;'><h2>📱 App Builder</h2><p>Собери приложение из блоков</p><p style='font-size:12px;color:#aaa;'>Перетащи блоки в область ниже</p></div></body></html>"></iframe>
@@ -360,17 +319,13 @@ app.get('/', (req, res) => {
       <span class="empty-hint">📋 Перетащи блок сюда, чтобы собрать приложение</span>
     </div>
   </div>
-
-  <!-- Правая панель -->
   <div id="right-panel">
     <h3>📄 Сгенерированный код</h3>
     <div id="code-output"><span class="comment">// Код появится здесь</span></div>
-
     <h3>📊 Переменные</h3>
     <div id="var-list">
       <div class="var-item"><span>asd</span> <span class="val">0</span> <span class="type">int</span></div>
     </div>
-
     <h3>💡 Советы</h3>
     <div style="font-size:10px;color:#888;line-height:1.6;padding:4px 0;">
       • Перетащи блоки в скрипт<br>
@@ -379,8 +334,6 @@ app.get('/', (req, res) => {
     </div>
   </div>
 </div>
-
-<!-- МОДАЛКА -->
 <div id="modal">
   <div class="box">
     <h2 id="modal-title">✏️ Настройка</h2>
@@ -391,58 +344,30 @@ app.get('/', (req, res) => {
     </div>
   </div>
 </div>
-
-<!-- ========================================== -->
-<!-- ===== ВЕСЬ JS ===== -->
-<!-- ========================================== -->
 <script>
-  // ============================================
-  // 1. СОСТОЯНИЕ
-  // ============================================
   let scriptBlocks = [];
   let blockIdCounter = 0;
   let variables = { asd: { value: 0, type: 'int' } };
-  let isRunning = false;
 
-  // ============================================
-  // 2. БЛОКИ
-  // ============================================
   const scriptArea = document.getElementById('script-area');
   const preview = document.getElementById('preview');
 
   document.querySelectorAll('.block-item').forEach(block => {
     block.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('blockData', block.dataset.block);
-      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('blockType', block.dataset.block);
     });
   });
 
-  scriptArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  });
+  scriptArea.addEventListener('dragover', (e) => e.preventDefault());
 
   scriptArea.addEventListener('drop', (e) => {
     e.preventDefault();
-    const data = e.dataTransfer.getData('blockData');
-    if (!data) return;
-
-    try {
-      const block = JSON.parse(data);
-      const newBlock = {
-        id: ++blockIdCounter,
-        type: block.type,
-        args: getDefaultArgs(block.type),
-        children: []
-      };
-      scriptBlocks.push(newBlock);
-      renderScript();
-      generateApp();
-      setStatus('✅ Блок добавлен');
-    } catch (err) {
-      setStatus('❌ Ошибка добавления блока');
-      console.error(err);
-    }
+    const type = e.dataTransfer.getData('blockType');
+    if (!type) return;
+    scriptBlocks.push({ id: ++blockIdCounter, type: type, args: getDefaultArgs(type) });
+    renderScript();
+    generateApp();
+    setStatus('✅ Блок добавлен');
   });
 
   function getDefaultArgs(type) {
@@ -481,14 +406,12 @@ app.get('/', (req, res) => {
       const div = document.createElement('div');
       div.className = 'script-block';
       div.style.background = getBlockColor(block.type);
-      const label = getBlockLabel(block);
-      div.innerHTML = label + '<span class="remove" data-index="' + index + '">✕</span>';
+      div.innerHTML = getBlockLabel(block) + '<span class="remove" data-index="' + index + '">✕</span>';
       scriptArea.appendChild(div);
     });
     document.querySelectorAll('.remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.index);
-        removeBlock(idx);
+      btn.addEventListener('click', function() {
+        removeBlock(parseInt(this.dataset.index));
       });
     });
   }
@@ -522,271 +445,60 @@ app.get('/', (req, res) => {
     return labels[block.type] || block.type;
   }
 
-  // ============================================
-  // 3. ГЕНЕРАЦИЯ ПРИЛОЖЕНИЯ
-  // ============================================
   function generateApp() {
-    let html = '<!DOCTYPE html>\n';
-    html += '<html>\n';
-    html += '<head>\n';
-    html += '  <meta charset="UTF-8">\n';
-    html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
-    html += '  <title>Моё приложение</title>\n';
-    html += '  <style>\n';
-    html += '    * { margin: 0; padding: 0; box-sizing: border-box; }\n';
-    html += '    body {\n';
-    html += '      font-family: system-ui, -apple-system, sans-serif;\n';
-    html += '      background: #f0f2f5;\n';
-    html += '      min-height: 100vh;\n';
-    html += '      display: flex;\n';
-    html += '      justify-content: center;\n';
-    html += '      align-items: center;\n';
-    html += '      padding: 12px;\n';
-    html += '    }\n';
-    html += '    .app-container {\n';
-    html += '      max-width: 420px;\n';
-    html += '      width: 100%;\n';
-    html += '      background: #ffffff;\n';
-    html += '      border-radius: 24px;\n';
-    html += '      padding: 20px;\n';
-    html += '      box-shadow: 0 8px 40px rgba(0,0,0,0.08);\n';
-    html += '      min-height: 500px;\n';
-    html += '      display: flex;\n';
-    html += '      flex-direction: column;\n';
-    html += '      gap: 12px;\n';
-    html += '    }\n';
-    html += '    .app-header {\n';
-    html += '      font-size: 22px;\n';
-    html += '      font-weight: 700;\n';
-    html += '      color: #1a1a2e;\n';
-    html += '      padding-bottom: 12px;\n';
-    html += '      border-bottom: 2px solid #f0f0f0;\n';
-    html += '    }\n';
-    html += '    .app-btn {\n';
-    html += '      color: #fff;\n';
-    html += '      border: none;\n';
-    html += '      padding: 12px 20px;\n';
-    html += '      border-radius: 12px;\n';
-    html += '      font-size: 16px;\n';
-    html += '      font-weight: 600;\n';
-    html += '      cursor: pointer;\n';
-    html += '      transition: 0.2s;\n';
-    html += '      width: 100%;\n';
-    html += '    }\n';
-    html += '    .app-btn:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }\n';
-    html += '    .app-btn.primary { background: #00d2d3; }\n';
-    html += '    .app-btn.secondary { background: #6c5ce7; }\n';
-    html += '    .app-btn.success { background: #2ed573; }\n';
-    html += '    .app-btn.danger { background: #ff4757; }\n';
-    html += '    .app-text { font-size: 16px; color: #333; line-height: 1.6; padding: 4px 0; }\n';
-    html += '    .app-input {\n';
-    html += '      padding: 10px 16px;\n';
-    html += '      border: 2px solid #e8e8e8;\n';
-    html += '      border-radius: 12px;\n';
-    html += '      font-size: 16px;\n';
-    html += '      width: 100%;\n';
-    html += '      transition: 0.2s;\n';
-    html += '      background: #fafafa;\n';
-    html += '    }\n';
-    html += '    .app-input:focus { outline: none; border-color: #00d2d3; background: #fff; }\n';
-    html += '    .app-image { max-width: 100%; border-radius: 12px; }\n';
-    html += '    .app-container-box {\n';
-    html += '      background: #f8f9fa;\n';
-    html += '      border-radius: 12px;\n';
-    html += '      padding: 16px;\n';
-    html += '      display: flex;\n';
-    html += '      flex-direction: column;\n';
-    html += '      gap: 8px;\n';
-    html += '    }\n';
-    html += '    .app-message {\n';
-    html += '      padding: 12px 16px;\n';
-    html += '      border-radius: 12px;\n';
-    html += '      text-align: center;\n';
-    html += '      font-weight: 600;\n';
-    html += '      animation: slideIn 0.3s ease;\n';
-    html += '      color: #fff;\n';
-    html += '    }\n';
-    html += '    .app-message.info { background: #00d2d3; }\n';
-    html += '    .app-message.error { background: #ff4757; }\n';
-    html += '    .app-message.success { background: #2ed573; }\n';
-    html += '    @keyframes slideIn {\n';
-    html += '      from { transform: translateY(-20px); opacity: 0; }\n';
-    html += '      to { transform: translateY(0); opacity: 1; }\n';
-    html += '    }\n';
-    html += '    .app-list {\n';
-    html += '      background: #f8f9fa;\n';
-    html += '      border-radius: 12px;\n';
-    html += '      padding: 8px;\n';
-    html += '    }\n';
-    html += '    .app-list-item {\n';
-    html += '      padding: 8px 12px;\n';
-    html += '      border-bottom: 1px solid #eee;\n';
-    html += '      font-size: 14px;\n';
-    html += '    }\n';
-    html += '    .app-list-item:last-child { border-bottom: none; }\n';
-    html += '  </style>\n';
-    html += '</head>\n';
-    html += '<body>\n';
-    html += '  <div class="app-container">\n';
-    html += '    <div class="app-header">📱 Моё приложение</div>\n';
+    let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Моё приложение</title>';
+    html += '<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:system-ui,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:12px;}.app-container{max-width:420px;width:100%;background:#fff;border-radius:24px;padding:20px;box-shadow:0 8px 40px rgba(0,0,0,0.08);min-height:500px;display:flex;flex-direction:column;gap:12px;}.app-header{font-size:22px;font-weight:700;color:#1a1a2e;padding-bottom:12px;border-bottom:2px solid #f0f0f0;}.app-btn{color:#fff;border:none;padding:12px 20px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s;width:100%;}.app-btn:hover{transform:scale(1.02);box-shadow:0 4px 15px rgba(0,0,0,0.15);}.app-btn.primary{background:#00d2d3;}.app-btn.secondary{background:#6c5ce7;}.app-btn.success{background:#2ed573;}.app-btn.danger{background:#ff4757;}.app-text{font-size:16px;color:#333;line-height:1.6;padding:4px 0;}.app-input{padding:10px 16px;border:2px solid #e8e8e8;border-radius:12px;font-size:16px;width:100%;transition:0.2s;background:#fafafa;}.app-input:focus{outline:none;border-color:#00d2d3;background:#fff;}.app-image{max-width:100%;border-radius:12px;}.app-container-box{background:#f8f9fa;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;}.app-message{padding:12px 16px;border-radius:12px;text-align:center;font-weight:600;animation:slideIn 0.3s ease;color:#fff;}.app-message.info{background:#00d2d3;}.app-message.error{background:#ff4757;}.app-message.success{background:#2ed573;}@keyframes slideIn{from{transform:translateY(-20px);opacity:0;}to{transform:translateY(0);opacity:1;}}.app-list{background:#f8f9fa;border-radius:12px;padding:8px;}.app-list-item{padding:8px 12px;border-bottom:1px solid #eee;font-size:14px;}.app-list-item:last-child{border-bottom:none;}</style></head><body><div class="app-container"><div class="app-header">📱 Моё приложение</div>';
 
-    let jsCode = '<script>\n';
-    jsCode += '  const state = {};\n';
-    jsCode += '  const lists = {};\n';
-    jsCode += '  let msgTimeout = null;\n\n';
-    jsCode += '  function showMessage(text, type) {\n';
-    jsCode += '    type = type || "info";\n';
-    jsCode += '    const el = document.createElement("div");\n';
-    jsCode += '    el.className = "app-message " + type;\n';
-    jsCode += '    el.textContent = text;\n';
-    jsCode += '    const container = document.querySelector(".app-container");\n';
-    jsCode += '    container.appendChild(el);\n';
-    jsCode += '    if (msgTimeout) clearTimeout(msgTimeout);\n';
-    jsCode += '    msgTimeout = setTimeout(function() {\n';
-    jsCode += '      if (el.parentNode) el.remove();\n';
-    jsCode += '    }, 3000);\n';
-    jsCode += '  }\n\n';
-    jsCode += '  function setVar(name, value) { state[name] = value; }\n';
-    jsCode += '  function getVar(name) { return state[name] !== undefined ? state[name] : 0; }\n\n';
-    jsCode += '  function inputDialog(prompt, variable) {\n';
-    jsCode += '    var val = prompt(prompt);\n';
-    jsCode += '    if (val !== null) {\n';
-    jsCode += '      state[variable] = val;\n';
-    jsCode += '      showMessage(variable + " = " + val, "success");\n';
-    jsCode += '    }\n';
-    jsCode += '  }\n\n';
-    jsCode += '  function addToList(list, value) {\n';
-    jsCode += '    if (!lists[list]) lists[list] = [];\n';
-    jsCode += '    lists[list].push(value);\n';
-    jsCode += '    renderList(list);\n';
-    jsCode += '  }\n\n';
-    jsCode += '  function getFromList(list, index, variable) {\n';
-    jsCode += '    if (lists[list] && lists[list][index] !== undefined) {\n';
-    jsCode += '      state[variable] = lists[list][index];\n';
-    jsCode += '      showMessage(variable + " = " + lists[list][index], "success");\n';
-    jsCode += '    }\n';
-    jsCode += '  }\n\n';
-    jsCode += '  function renderList(name) {\n';
-    jsCode += '    var old = document.querySelector(".app-list[data-list=\\"" + name + "\\"]");\n';
-    jsCode += '    if (old) old.remove();\n';
-    jsCode += '    if (!lists[name] || lists[name].length === 0) return;\n';
-    jsCode += '    var div = document.createElement("div");\n';
-    jsCode += '    div.className = "app-list";\n';
-    jsCode += '    div.dataset.list = name;\n';
-    jsCode += '    lists[name].forEach(function(item, i) {\n';
-    jsCode += '      var el = document.createElement("div");\n';
-    jsCode += '      el.className = "app-list-item";\n';
-    jsCode += '      el.textContent = (i+1) + ". " + item;\n';
-    jsCode += '      div.appendChild(el);\n';
-    jsCode += '    });\n';
-    jsCode += '    document.querySelector(".app-container").appendChild(div);\n';
-    jsCode += '  }\n\n';
-    jsCode += '  function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }\n\n';
-    jsCode += '  // === ВЫПОЛНЕНИЕ ===\n';
-    jsCode += '  async function runApp() {\n';
-    jsCode += '    var container = document.querySelector(".app-container");\n';
+    let jsCode = '<script>';
+    jsCode += 'const state={};const lists={};let msgTimeout=null;';
+    jsCode += 'function showMessage(text,type){type=type||"info";const el=document.createElement("div");el.className="app-message "+type;el.textContent=text;document.querySelector(".app-container").appendChild(el);if(msgTimeout)clearTimeout(msgTimeout);msgTimeout=setTimeout(function(){if(el.parentNode)el.remove();},3000);}';
+    jsCode += 'function setVar(name,value){state[name]=value;}';
+    jsCode += 'function getVar(name){return state[name]!==undefined?state[name]:0;}';
+    jsCode += 'function inputDialog(prompt,variable){var val=prompt(prompt);if(val!==null){state[variable]=val;showMessage(variable+" = "+val,"success");}}';
+    jsCode += 'function addToList(list,value){if(!lists[list])lists[list]=[];lists[list].push(value);renderList(list);}';
+    jsCode += 'function getFromList(list,index,variable){if(lists[list]&&lists[list][index]!==undefined){state[variable]=lists[list][index];showMessage(variable+" = "+lists[list][index],"success");}}';
+    jsCode += 'function renderList(name){var old=document.querySelector(".app-list[data-list=\\""+name+"\\"]");if(old)old.remove();if(!lists[name]||lists[name].length===0)return;var div=document.createElement("div");div.className="app-list";div.dataset.list=name;lists[name].forEach(function(item,i){var el=document.createElement("div");el.className="app-list-item";el.textContent=(i+1)+". "+item;div.appendChild(el);});document.querySelector(".app-container").appendChild(div);}';
+    jsCode += 'function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}';
+    jsCode += 'async function runApp(){var container=document.querySelector(".app-container");';
 
     scriptBlocks.forEach(function(block) {
-      switch (block.type) {
-        case 'show_message':
-          jsCode += '    showMessage("' + block.args.text + '", "info");\n';
-          break;
-        case 'set_var':
-          jsCode += '    setVar("' + block.args.name + '", ' + block.args.value + ');\n';
-          break;
-        case 'if_var':
-          jsCode += '    if (getVar("' + block.args.name + '") ' + block.args.operator + ' ' + block.args.value + ') {\n';
-          break;
-        case 'input_dialog':
-          jsCode += '    inputDialog("' + block.args.prompt + '", "' + block.args.variable + '");\n';
-          break;
-        case 'button':
-          var action = block.args.action || 'showMessage("Кнопка нажата!", "success")';
-          jsCode += '    var btn' + block.id + ' = document.createElement("button");\n';
-          jsCode += '    btn' + block.id + '.className = "app-btn ' + (block.args.style || 'primary') + '";\n';
-          jsCode += '    btn' + block.id + '.textContent = "' + block.args.label + '";\n';
-          jsCode += '    btn' + block.id + '.onclick = function() { ' + action + '; };\n';
-          jsCode += '    container.appendChild(btn' + block.id + ');\n';
-          break;
-        case 'text':
-          jsCode += '    var txt' + block.id + ' = document.createElement("div");\n';
-          jsCode += '    txt' + block.id + '.className = "app-text";\n';
-          jsCode += '    txt' + block.id + '.style.fontSize = "' + (block.args.size || '16px') + '";\n';
-          jsCode += '    txt' + block.id + '.style.color = "' + (block.args.color || '#333') + '";\n';
-          jsCode += '    txt' + block.id + '.textContent = "' + block.args.content + '";\n';
-          jsCode += '    container.appendChild(txt' + block.id + ');\n';
-          break;
-        case 'input':
-          jsCode += '    var inp' + block.id + ' = document.createElement("input");\n';
-          jsCode += '    inp' + block.id + '.className = "app-input";\n';
-          jsCode += '    inp' + block.id + '.placeholder = "' + block.args.placeholder + '";\n';
-          jsCode += '    inp' + block.id + '.value = "' + (block.args.value || '') + '";\n';
-          jsCode += '    container.appendChild(inp' + block.id + ');\n';
-          break;
-        case 'image':
-          jsCode += '    var img' + block.id + ' = document.createElement("img");\n';
-          jsCode += '    img' + block.id + '.className = "app-image";\n';
-          jsCode += '    img' + block.id + '.src = "' + (block.args.src || 'https://via.placeholder.com/150x100') + '";\n';
-          jsCode += '    img' + block.id + '.alt = "' + (block.args.alt || 'image') + '";\n';
-          jsCode += '    container.appendChild(img' + block.id + ');\n';
-          break;
-        case 'container':
-          jsCode += '    var cont' + block.id + ' = document.createElement("div");\n';
-          jsCode += '    cont' + block.id + '.className = "app-container-box";\n';
-          jsCode += '    cont' + block.id + '.style.background = "' + (block.args.bg || '#f8f9fa') + '";\n';
-          jsCode += '    cont' + block.id + '.style.padding = "' + (block.args.padding || '16px') + '";\n';
-          jsCode += '    cont' + block.id + '.style.gap = "' + (block.args.gap || '8px') + '";\n';
-          jsCode += '    container.appendChild(cont' + block.id + ');\n';
-          break;
-        case 'loop':
-          jsCode += '    for (var i = 0; i < ' + block.args.times + '; i++) {\n';
-          break;
-        case 'delay':
-          jsCode += '    await delay(' + block.args.ms + ');\n';
-          break;
-        case 'list_add':
-          jsCode += '    addToList("' + block.args.list + '", "' + block.args.value + '");\n';
-          break;
-        case 'list_get':
-          jsCode += '    getFromList("' + block.args.list + '", ' + block.args.index + ', "' + block.args.variable + '");\n';
-          break;
-        default:
-          break;
+      switch(block.type) {
+        case 'show_message': jsCode += 'showMessage("' + block.args.text + '","info");'; break;
+        case 'set_var': jsCode += 'setVar("' + block.args.name + '",' + block.args.value + ');'; break;
+        case 'if_var': jsCode += 'if(getVar("' + block.args.name + '") ' + block.args.operator + ' ' + block.args.value + '){'; break;
+        case 'input_dialog': jsCode += 'inputDialog("' + block.args.prompt + '","' + block.args.variable + '");'; break;
+        case 'button': var action = block.args.action || 'showMessage("Кнопка нажата!","success")'; jsCode += 'var btn=document.createElement("button");btn.className="app-btn ' + (block.args.style||'primary') + '";btn.textContent="' + block.args.label + '";btn.onclick=function(){' + action + ';};container.appendChild(btn);'; break;
+        case 'text': jsCode += 'var txt=document.createElement("div");txt.className="app-text";txt.style.fontSize="' + (block.args.size||'16px') + '";txt.style.color="' + (block.args.color||'#333') + '";txt.textContent="' + block.args.content + '";container.appendChild(txt);'; break;
+        case 'input': jsCode += 'var inp=document.createElement("input");inp.className="app-input";inp.placeholder="' + block.args.placeholder + '";inp.value="' + (block.args.value||'') + '";container.appendChild(inp);'; break;
+        case 'image': jsCode += 'var img=document.createElement("img");img.className="app-image";img.src="' + (block.args.src||'https://via.placeholder.com/150x100') + '";img.alt="' + (block.args.alt||'image') + '";container.appendChild(img);'; break;
+        case 'container': jsCode += 'var cont=document.createElement("div");cont.className="app-container-box";cont.style.background="' + (block.args.bg||'#f8f9fa') + '";cont.style.padding="' + (block.args.padding||'16px') + '";cont.style.gap="' + (block.args.gap||'8px') + '";container.appendChild(cont);'; break;
+        case 'loop': jsCode += 'for(var i=0;i<' + block.args.times + ';i++){'; break;
+        case 'delay': jsCode += 'await delay(' + block.args.ms + ');'; break;
+        case 'list_add': jsCode += 'addToList("' + block.args.list + '","' + block.args.value + '");'; break;
+        case 'list_get': jsCode += 'getFromList("' + block.args.list + '",' + block.args.index + ',"' + block.args.variable + '");'; break;
       }
     });
 
-    jsCode += '  }\n';
-    jsCode += '  runApp();\n';
-    jsCode += '</script>';
+    jsCode += '}runApp();</script>';
 
     html += jsCode;
-    html += '  </div>\n';
-    html += '</body>\n';
-    html += '</html>';
+    html += '</div></body></html>';
 
     preview.srcdoc = html;
     generateCode();
     updateVariables();
   }
 
-  // ============================================
-  // 4. ГЕНЕРАЦИЯ КОДА
-  // ============================================
   function generateCode() {
     var output = document.getElementById('code-output');
     var code = '';
-    var vars = '';
-
     scriptBlocks.forEach(function(block) {
-      if (block.type === 'set_var') {
-        vars += 'let ' + block.args.name + ' = ' + block.args.value + ';\n';
-      }
+      if(block.type==='set_var') code += 'let ' + block.args.name + ' = ' + block.args.value + ';\n';
     });
-    if (!vars.includes('asd')) vars += 'let asd = 0;\n';
-
+    if(!code.includes('asd')) code += 'let asd = 0;\n';
     var loopCode = '';
     scriptBlocks.forEach(function(block) {
-      switch (block.type) {
+      switch(block.type) {
         case 'show_message': loopCode += 'showMessage("' + block.args.text + '");\n'; break;
         case 'set_var': loopCode += block.args.name + ' = ' + block.args.value + ';\n'; break;
         case 'if_var': loopCode += 'if (' + block.args.name + ' ' + block.args.operator + ' ' + block.args.value + ') {\n'; break;
@@ -800,43 +512,13 @@ app.get('/', (req, res) => {
         case 'delay': loopCode += 'await delay(' + block.args.ms + ');\n'; break;
         case 'list_add': loopCode += 'addToList("' + block.args.list + '", "' + block.args.value + '");\n'; break;
         case 'list_get': loopCode += 'getFromList("' + block.args.list + '", ' + block.args.index + ', "' + block.args.variable + '");\n'; break;
-        default: break;
       }
     });
-
-    var fullCode = '\n';
-    fullCode += '// ==========================================\n';
-    fullCode += '// App Builder Pro — сгенерированный код\n';
-    fullCode += '// ==========================================\n\n';
-    fullCode += vars;
-    fullCode += '\n// Функции UI\n';
-    fullCode += 'function showMessage(text, type) { /* ... */ }\n';
-    fullCode += 'function createButton(label, action) { /* ... */ }\n';
-    fullCode += 'function createText(content) { /* ... */ }\n';
-    fullCode += 'function createInput(placeholder) { /* ... */ }\n';
-    fullCode += 'function createImage(src) { /* ... */ }\n';
-    fullCode += 'function createContainer() { /* ... */ }\n';
-    fullCode += 'function addToList(list, value) { /* ... */ }\n';
-    fullCode += 'function getFromList(list, index, variable) { /* ... */ }\n';
-    fullCode += 'function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }\n\n';
-    fullCode += '// Основная программа\n';
-    fullCode += 'async function main() {\n';
-    fullCode += loopCode;
-    fullCode += '}\n\n';
-    fullCode += 'main();\n';
-
-    var highlighted = fullCode
-      .replace(/\/\/.*/g, function(match) { return '<span class="comment">' + match + '</span>'; })
-      .replace(/\b(let|const|var|function|if|for|await|async|return|new)\b/g, function(match) { return '<span class="keyword">' + match + '</span>'; })
-      .replace(/"([^"]*)"/g, function(match, p1) { return '<span class="string">"' + p1 + '"</span>'; })
-      .replace(/\b(\d+)\b/g, function(match) { return '<span class="number">' + match + '</span>'; });
-
+    var fullCode = '// App Builder Pro — код\n' + code + '\n// Основная программа\nasync function main() {\n' + loopCode + '}\nmain();\n';
+    var highlighted = fullCode.replace(/\/\/.*/g, function(m){return '<span class="comment">'+m+'</span>';}).replace(/\b(let|const|var|function|if|for|await|async|return|new)\b/g, function(m){return '<span class="keyword">'+m+'</span>';}).replace(/"([^"]*)"/g, function(m,p){return '<span class="string">"'+p+'"</span>';}).replace(/\b(\d+)\b/g, function(m){return '<span class="number">'+m+'</span>';});
     output.innerHTML = highlighted;
   }
 
-  // ============================================
-  // 5. ПЕРЕМЕННЫЕ
-  // ============================================
   function updateVariables() {
     var list = document.getElementById('var-list');
     list.innerHTML = '';
@@ -850,184 +532,39 @@ app.get('/', (req, res) => {
     document.getElementById('status-text').textContent = text;
   }
 
-  // ============================================
-  // 6. УПРАВЛЕНИЕ
-  // ============================================
-  document.getElementById('run-btn').addEventListener('click', function() {
-    generateApp();
-    setStatus('▶️ Запущено');
-    setTimeout(function() { setStatus('✅ Готово'); }, 1000);
-  });
+  document.getElementById('run-btn').addEventListener('click', function() { generateApp(); setStatus('▶️ Запущено'); setTimeout(function(){setStatus('✅ Готово');},1000); });
+  document.getElementById('clear-btn').addEventListener('click', function() { scriptBlocks=[]; blockIdCounter=0; renderScript(); generateApp(); setStatus('🗑️ Очищено'); });
+  document.getElementById('export-btn').addEventListener('click', function() { try { var iframe=document.getElementById('preview'); var html=iframe.srcdoc; if(html){var blob=new Blob([html],{type:'text/html'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='my-app.html';a.click();URL.revokeObjectURL(url);setStatus('📦 Экспортировано!');}else{setStatus('❌ Ошибка экспорта');}}catch(e){setStatus('❌ Ошибка: '+e.message);} });
+  document.getElementById('var-btn').addEventListener('click', function() { var modal=document.getElementById('modal'); var body=document.getElementById('modal-body'); document.getElementById('modal-title').textContent='➕ Новая переменная'; body.innerHTML='<label>Имя переменной</label><input id="var-name" value="myVar" /><label>Тип</label><select id="var-type"><option value="int">int</option><option value="string">string</option><option value="boolean">boolean</option></select><label>Начальное значение</label><input id="var-value" value="0" />'; modal.classList.add('show'); document.getElementById('modal-ok').onclick=function(){var name=document.getElementById('var-name').value.trim();var type=document.getElementById('var-type').value;var value=document.getElementById('var-value').value;if(name&&!variables[name]){variables[name]={value:type==='int'?parseInt(value)||0:type==='boolean'?value==='true':value,type:type};updateVariables();setStatus('✅ Переменная '+name+' создана');}else if(variables[name]){alert('❌ Переменная с таким именем уже существует!');}else{alert('❌ Введите имя переменной');}modal.classList.remove('show');}; document.getElementById('modal-close').onclick=function(){modal.classList.remove('show');}; });
 
-  document.getElementById('clear-btn').addEventListener('click', function() {
-    scriptBlocks = [];
-    blockIdCounter = 0;
-    renderScript();
-    generateApp();
-    setStatus('🗑️ Очищено');
-  });
-
-  document.getElementById('export-btn').addEventListener('click', function() {
-    try {
-      var iframe = document.getElementById('preview');
-      var html = iframe.srcdoc;
-      if (html) {
-        var blob = new Blob([html], { type: 'text/html' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'my-app.html';
-        a.click();
-        URL.revokeObjectURL(url);
-        setStatus('📦 Экспортировано!');
-      } else {
-        setStatus('❌ Ошибка экспорта');
-      }
-    } catch (e) {
-      setStatus('❌ Ошибка: ' + e.message);
-    }
-  });
-
-  // ============================================
-  // 7. ПЕРЕМЕННАЯ (модалка)
-  // ============================================
-  document.getElementById('var-btn').addEventListener('click', function() {
-    var modal = document.getElementById('modal');
-    var body = document.getElementById('modal-body');
-    document.getElementById('modal-title').textContent = '➕ Новая переменная';
-    body.innerHTML = '';
-    body.innerHTML += '<label>Имя переменной</label>';
-    body.innerHTML += '<input id="var-name" value="myVar" />';
-    body.innerHTML += '<label>Тип</label>';
-    body.innerHTML += '<select id="var-type">';
-    body.innerHTML += '  <option value="int">int</option>';
-    body.innerHTML += '  <option value="string">string</option>';
-    body.innerHTML += '  <option value="boolean">boolean</option>';
-    body.innerHTML += '</select>';
-    body.innerHTML += '<label>Начальное значение</label>';
-    body.innerHTML += '<input id="var-value" value="0" />';
-    modal.classList.add('show');
-    document.getElementById('modal-ok').onclick = function() {
-      var name = document.getElementById('var-name').value.trim();
-      var type = document.getElementById('var-type').value;
-      var value = document.getElementById('var-value').value;
-      if (name && !variables[name]) {
-        variables[name] = { 
-          value: type === 'int' ? parseInt(value) || 0 : type === 'boolean' ? value === 'true' : value, 
-          type: type
-        };
-        updateVariables();
-        setStatus('✅ Переменная ' + name + ' создана');
-      } else if (variables[name]) {
-        alert('❌ Переменная с таким именем уже существует!');
-      } else {
-        alert('❌ Введите имя переменной');
-      }
-      modal.classList.remove('show');
-    };
-    document.getElementById('modal-close').onclick = function() {
-      modal.classList.remove('show');
-    };
-  });
-
-  // ============================================
-  // 8. ОБУЧЕНИЕ
-  // ============================================
-  var lessonIndex = 0;
-  var lessons = [
-    {
-      title: '📚 Урок 1: Первое приложение',
-      text: 'Перетащи блок "Показать сообщение" в область скрипта и нажми "Запустить"',
-      blocks: ['show_message']
-    },
-    {
-      title: '📚 Урок 2: Кнопка',
-      text: 'Перетащи блок "Кнопка" и нажми на неё в приложении',
-      blocks: ['button']
-    },
-    {
-      title: '📚 Урок 3: Переменные',
-      text: 'Перетащи "Присвоить переменную" и "Если условие" для логики',
-      blocks: ['set_var', 'if_var']
-    },
-    {
-      title: '📚 Урок 4: Циклы',
-      text: 'Перетащи "Цикл" и вложи в него другие блоки для повторения',
-      blocks: ['loop']
-    },
-    {
-      title: '📚 Урок 5: Списки',
-      text: 'Используй "Добавить в список" и "Взять из списка" для данных',
-      blocks: ['list_add', 'list_get']
-    }
-  ];
+  var lessonIndex=0;
+  var lessons=[{title:'📚 Урок 1: Первое приложение',text:'Перетащи блок "Показать сообщение" в область скрипта и нажми "Запустить"',blocks:['show_message']},{title:'📚 Урок 2: Кнопка',text:'Перетащи блок "Кнопка" и нажми на неё в приложении',blocks:['button']},{title:'📚 Урок 3: Переменные',text:'Перетащи "Присвоить переменную" и "Если условие" для логики',blocks:['set_var','if_var']},{title:'📚 Урок 4: Циклы',text:'Перетащи "Цикл" и вложи в него другие блоки для повторения',blocks:['loop']},{title:'📚 Урок 5: Списки',text:'Используй "Добавить в список" и "Взять из списка" для данных',blocks:['list_add','list_get']}];
 
   document.getElementById('lesson-btn').addEventListener('click', function() {
-    var modal = document.getElementById('modal');
-    var body = document.getElementById('modal-body');
-    var lesson = lessons[lessonIndex % lessons.length];
-    document.getElementById('modal-title').textContent = lesson.title;
-    body.innerHTML = '';
-    body.innerHTML += '<div style="color:#fff;font-size:14px;line-height:1.8;padding:8px 0;">';
-    body.innerHTML += '  <p>' + lesson.text + '</p>';
-    body.innerHTML += '  <p style="color:#888;font-size:12px;margin-top:8px;">';
-    body.innerHTML += '    💡 Нужные блоки: <strong style="color:#00d2d3;">' + lesson.blocks.join(', ') + '</strong>';
-    body.innerHTML += '  </p>';
-    body.innerHTML += '  <p style="color:#888;font-size:11px;margin-top:8px;">';
-    body.innerHTML += '    Урок ' + ((lessonIndex % lessons.length) + 1) + ' из ' + lessons.length;
-    body.innerHTML += '  </p>';
-    body.innerHTML += '</div>';
-    body.innerHTML += '<div style="display:flex;gap:8px;margin-top:12px;">';
-    body.innerHTML += '  <button id="load-lesson-btn" style="flex:1;background:#00d2d3;border:none;padding:8px;border-radius:6px;color:#0a0a1a;font-weight:700;cursor:pointer;">';
-    body.innerHTML += '    🚀 Загрузить пример';
-    body.innerHTML += '  </button>';
-    body.innerHTML += '</div>';
+    var modal=document.getElementById('modal');
+    var body=document.getElementById('modal-body');
+    var lesson=lessons[lessonIndex%lessons.length];
+    document.getElementById('modal-title').textContent=lesson.title;
+    body.innerHTML='<div style="color:#fff;font-size:14px;line-height:1.8;padding:8px 0;"><p>'+lesson.text+'</p><p style="color:#888;font-size:12px;margin-top:8px;">💡 Нужные блоки: <strong style="color:#00d2d3;">'+lesson.blocks.join(', ')+'</strong></p><p style="color:#888;font-size:11px;margin-top:8px;">Урок '+(lessonIndex%lessons.length+1)+' из '+lessons.length+'</p></div><div style="display:flex;gap:8px;margin-top:12px;"><button id="load-lesson-btn" style="flex:1;background:#00d2d3;border:none;padding:8px;border-radius:6px;color:#0a0a1a;font-weight:700;cursor:pointer;">🚀 Загрузить пример</button></div>';
     modal.classList.add('show');
-    
     document.getElementById('load-lesson-btn').addEventListener('click', function() {
-      var types = lesson.blocks;
-      scriptBlocks = [];
-      blockIdCounter = 0;
-      types.forEach(function(type) {
-        var block = {
-          id: ++blockIdCounter,
-          type: type,
-          args: getDefaultArgs(type),
-          children: []
-        };
-        scriptBlocks.push(block);
-      });
-      renderScript();
-      generateApp();
-      setStatus('📚 Урок загружен!');
-      modal.classList.remove('show');
-      lessonIndex++;
+      scriptBlocks=[]; blockIdCounter=0;
+      lesson.blocks.forEach(function(type){scriptBlocks.push({id:++blockIdCounter,type:type,args:getDefaultArgs(type)});});
+      renderScript(); generateApp(); setStatus('📚 Урок загружен!'); modal.classList.remove('show'); lessonIndex++;
     });
-
-    document.getElementById('modal-close').onclick = function() {
-      modal.classList.remove('show');
-      lessonIndex++;
-    };
-    document.getElementById('modal-ok').onclick = function() {
-      modal.classList.remove('show');
-      lessonIndex++;
-    };
+    document.getElementById('modal-close').onclick=function(){modal.classList.remove('show');lessonIndex++;};
+    document.getElementById('modal-ok').onclick=function(){modal.classList.remove('show');lessonIndex++;};
   });
 
-  // ============================================
-  // 9. ИНИЦИАЛИЗАЦИЯ
-  // ============================================
   renderScript();
   generateApp();
   setStatus('✅ Готово! Перетащи блоки или начни обучение');
-
   console.log('📱 App Builder Pro загружен!');
-  console.log('🧩 Перетащи блоки для создания приложения');
-  console.log('📚 Нажми "Обучение" для уроков');
 </script>
 </body>
-</html>
-\`);
+</html>`;
+
+  res.send(html);
 });
 
 // ============================================
