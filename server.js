@@ -8,7 +8,7 @@ app.use(express.json());
 // ПОЛНЫЙ ФРОНТЕНД — ВСЁ В ОДНОМ
 // ============================================
 app.get('/', (req, res) => {
-  res.send(`
+  res.send(\`
 <!DOCTYPE html>
 <html>
 <head>
@@ -482,7 +482,7 @@ app.get('/', (req, res) => {
       div.className = 'script-block';
       div.style.background = getBlockColor(block.type);
       const label = getBlockLabel(block);
-      div.innerHTML = \`\${label}<span class="remove" data-index="\${index}">✕</span>\`;
+      div.innerHTML = label + '<span class="remove" data-index="' + index + '">✕</span>';
       scriptArea.appendChild(div);
     });
     document.querySelectorAll('.remove').forEach(btn => {
@@ -505,19 +505,19 @@ app.get('/', (req, res) => {
 
   function getBlockLabel(block) {
     const labels = {
-      show_message: \`💬 "\${block.args.text}"\`,
-      set_var: \`📦 \${block.args.name} = \${block.args.value}\`,
-      if_var: \`❓ \${block.args.name} \${block.args.operator} \${block.args.value}\`,
-      input_dialog: \`✏️ "\${block.args.prompt}" → \${block.args.variable}\`,
-      button: \`🔘 "\${block.args.label}"\`,
-      text: \`📝 "\${block.args.content}"\`,
-      input: \`📥 "\${block.args.placeholder}"\`,
-      image: \`🖼️ Картинка\`,
-      container: \`📦 Контейнер\`,
-      loop: \`🔄 \${block.args.times} раз\`,
-      delay: \`⏳ \${block.args.ms}мс\`,
-      list_add: \`📋 + \${block.args.value} → \${block.args.list}\`,
-      list_get: \`📋 \${block.args.list}[\${block.args.index}] → \${block.args.variable}\`
+      show_message: '💬 "' + block.args.text + '"',
+      set_var: '📦 ' + block.args.name + ' = ' + block.args.value,
+      if_var: '❓ ' + block.args.name + ' ' + block.args.operator + ' ' + block.args.value,
+      input_dialog: '✏️ "' + block.args.prompt + '" → ' + block.args.variable,
+      button: '🔘 "' + block.args.label + '"',
+      text: '📝 "' + block.args.content + '"',
+      input: '📥 "' + block.args.placeholder + '"',
+      image: '🖼️ Картинка',
+      container: '📦 Контейнер',
+      loop: '🔄 ' + block.args.times + ' раз',
+      delay: '⏳ ' + block.args.ms + 'мс',
+      list_add: '📋 + ' + block.args.value + ' → ' + block.args.list,
+      list_get: '📋 ' + block.args.list + '[' + block.args.index + '] → ' + block.args.variable
     };
     return labels[block.type] || block.type;
   }
@@ -526,268 +526,243 @@ app.get('/', (req, res) => {
   // 3. ГЕНЕРАЦИЯ ПРИЛОЖЕНИЯ
   // ============================================
   function generateApp() {
-    let html = \`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Моё приложение</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: system-ui, -apple-system, sans-serif;
-          background: #f0f2f5;
-          min-height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 12px;
-        }
-        .app-container {
-          max-width: 420px;
-          width: 100%;
-          background: #ffffff;
-          border-radius: 24px;
-          padding: 20px;
-          box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-          min-height: 500px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .app-header {
-          font-size: 22px;
-          font-weight: 700;
-          color: #1a1a2e;
-          padding-bottom: 12px;
-          border-bottom: 2px solid #f0f0f0;
-        }
-        .app-btn {
-          color: #fff;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: 0.2s;
-          width: 100%;
-        }
-        .app-btn:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        .app-btn.primary { background: #00d2d3; }
-        .app-btn.secondary { background: #6c5ce7; }
-        .app-btn.success { background: #2ed573; }
-        .app-btn.danger { background: #ff4757; }
-        .app-text { font-size: 16px; color: #333; line-height: 1.6; padding: 4px 0; }
-        .app-input {
-          padding: 10px 16px;
-          border: 2px solid #e8e8e8;
-          border-radius: 12px;
-          font-size: 16px;
-          width: 100%;
-          transition: 0.2s;
-          background: #fafafa;
-        }
-        .app-input:focus { outline: none; border-color: #00d2d3; background: #fff; }
-        .app-image { max-width: 100%; border-radius: 12px; }
-        .app-container-box {
-          background: #f8f9fa;
-          border-radius: 12px;
-          padding: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .app-message {
-          padding: 12px 16px;
-          border-radius: 12px;
-          text-align: center;
-          font-weight: 600;
-          animation: slideIn 0.3s ease;
-          color: #fff;
-        }
-        .app-message.info { background: #00d2d3; }
-        .app-message.error { background: #ff4757; }
-        .app-message.success { background: #2ed573; }
-        @keyframes slideIn {
-          from { transform: translateY(-20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .app-list {
-          background: #f8f9fa;
-          border-radius: 12px;
-          padding: 8px;
-        }
-        .app-list-item {
-          padding: 8px 12px;
-          border-bottom: 1px solid #eee;
-          font-size: 14px;
-        }
-        .app-list-item:last-child { border-bottom: none; }
-      </style>
-    </head>
-    <body>
-      <div class="app-container">
-        <div class="app-header">📱 Моё приложение</div>
-    \`;
+    let html = '<!DOCTYPE html>\n';
+    html += '<html>\n';
+    html += '<head>\n';
+    html += '  <meta charset="UTF-8">\n';
+    html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+    html += '  <title>Моё приложение</title>\n';
+    html += '  <style>\n';
+    html += '    * { margin: 0; padding: 0; box-sizing: border-box; }\n';
+    html += '    body {\n';
+    html += '      font-family: system-ui, -apple-system, sans-serif;\n';
+    html += '      background: #f0f2f5;\n';
+    html += '      min-height: 100vh;\n';
+    html += '      display: flex;\n';
+    html += '      justify-content: center;\n';
+    html += '      align-items: center;\n';
+    html += '      padding: 12px;\n';
+    html += '    }\n';
+    html += '    .app-container {\n';
+    html += '      max-width: 420px;\n';
+    html += '      width: 100%;\n';
+    html += '      background: #ffffff;\n';
+    html += '      border-radius: 24px;\n';
+    html += '      padding: 20px;\n';
+    html += '      box-shadow: 0 8px 40px rgba(0,0,0,0.08);\n';
+    html += '      min-height: 500px;\n';
+    html += '      display: flex;\n';
+    html += '      flex-direction: column;\n';
+    html += '      gap: 12px;\n';
+    html += '    }\n';
+    html += '    .app-header {\n';
+    html += '      font-size: 22px;\n';
+    html += '      font-weight: 700;\n';
+    html += '      color: #1a1a2e;\n';
+    html += '      padding-bottom: 12px;\n';
+    html += '      border-bottom: 2px solid #f0f0f0;\n';
+    html += '    }\n';
+    html += '    .app-btn {\n';
+    html += '      color: #fff;\n';
+    html += '      border: none;\n';
+    html += '      padding: 12px 20px;\n';
+    html += '      border-radius: 12px;\n';
+    html += '      font-size: 16px;\n';
+    html += '      font-weight: 600;\n';
+    html += '      cursor: pointer;\n';
+    html += '      transition: 0.2s;\n';
+    html += '      width: 100%;\n';
+    html += '    }\n';
+    html += '    .app-btn:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }\n';
+    html += '    .app-btn.primary { background: #00d2d3; }\n';
+    html += '    .app-btn.secondary { background: #6c5ce7; }\n';
+    html += '    .app-btn.success { background: #2ed573; }\n';
+    html += '    .app-btn.danger { background: #ff4757; }\n';
+    html += '    .app-text { font-size: 16px; color: #333; line-height: 1.6; padding: 4px 0; }\n';
+    html += '    .app-input {\n';
+    html += '      padding: 10px 16px;\n';
+    html += '      border: 2px solid #e8e8e8;\n';
+    html += '      border-radius: 12px;\n';
+    html += '      font-size: 16px;\n';
+    html += '      width: 100%;\n';
+    html += '      transition: 0.2s;\n';
+    html += '      background: #fafafa;\n';
+    html += '    }\n';
+    html += '    .app-input:focus { outline: none; border-color: #00d2d3; background: #fff; }\n';
+    html += '    .app-image { max-width: 100%; border-radius: 12px; }\n';
+    html += '    .app-container-box {\n';
+    html += '      background: #f8f9fa;\n';
+    html += '      border-radius: 12px;\n';
+    html += '      padding: 16px;\n';
+    html += '      display: flex;\n';
+    html += '      flex-direction: column;\n';
+    html += '      gap: 8px;\n';
+    html += '    }\n';
+    html += '    .app-message {\n';
+    html += '      padding: 12px 16px;\n';
+    html += '      border-radius: 12px;\n';
+    html += '      text-align: center;\n';
+    html += '      font-weight: 600;\n';
+    html += '      animation: slideIn 0.3s ease;\n';
+    html += '      color: #fff;\n';
+    html += '    }\n';
+    html += '    .app-message.info { background: #00d2d3; }\n';
+    html += '    .app-message.error { background: #ff4757; }\n';
+    html += '    .app-message.success { background: #2ed573; }\n';
+    html += '    @keyframes slideIn {\n';
+    html += '      from { transform: translateY(-20px); opacity: 0; }\n';
+    html += '      to { transform: translateY(0); opacity: 1; }\n';
+    html += '    }\n';
+    html += '    .app-list {\n';
+    html += '      background: #f8f9fa;\n';
+    html += '      border-radius: 12px;\n';
+    html += '      padding: 8px;\n';
+    html += '    }\n';
+    html += '    .app-list-item {\n';
+    html += '      padding: 8px 12px;\n';
+    html += '      border-bottom: 1px solid #eee;\n';
+    html += '      font-size: 14px;\n';
+    html += '    }\n';
+    html += '    .app-list-item:last-child { border-bottom: none; }\n';
+    html += '  </style>\n';
+    html += '</head>\n';
+    html += '<body>\n';
+    html += '  <div class="app-container">\n';
+    html += '    <div class="app-header">📱 Моё приложение</div>\n';
 
-    let jsCode = \`
-    <script>
-      const state = {};
-      const lists = {};
-      let msgTimeout = null;
+    let jsCode = '<script>\n';
+    jsCode += '  const state = {};\n';
+    jsCode += '  const lists = {};\n';
+    jsCode += '  let msgTimeout = null;\n\n';
+    jsCode += '  function showMessage(text, type) {\n';
+    jsCode += '    type = type || "info";\n';
+    jsCode += '    const el = document.createElement("div");\n';
+    jsCode += '    el.className = "app-message " + type;\n';
+    jsCode += '    el.textContent = text;\n';
+    jsCode += '    const container = document.querySelector(".app-container");\n';
+    jsCode += '    container.appendChild(el);\n';
+    jsCode += '    if (msgTimeout) clearTimeout(msgTimeout);\n';
+    jsCode += '    msgTimeout = setTimeout(function() {\n';
+    jsCode += '      if (el.parentNode) el.remove();\n';
+    jsCode += '    }, 3000);\n';
+    jsCode += '  }\n\n';
+    jsCode += '  function setVar(name, value) { state[name] = value; }\n';
+    jsCode += '  function getVar(name) { return state[name] !== undefined ? state[name] : 0; }\n\n';
+    jsCode += '  function inputDialog(prompt, variable) {\n';
+    jsCode += '    var val = prompt(prompt);\n';
+    jsCode += '    if (val !== null) {\n';
+    jsCode += '      state[variable] = val;\n';
+    jsCode += '      showMessage(variable + " = " + val, "success");\n';
+    jsCode += '    }\n';
+    jsCode += '  }\n\n';
+    jsCode += '  function addToList(list, value) {\n';
+    jsCode += '    if (!lists[list]) lists[list] = [];\n';
+    jsCode += '    lists[list].push(value);\n';
+    jsCode += '    renderList(list);\n';
+    jsCode += '  }\n\n';
+    jsCode += '  function getFromList(list, index, variable) {\n';
+    jsCode += '    if (lists[list] && lists[list][index] !== undefined) {\n';
+    jsCode += '      state[variable] = lists[list][index];\n';
+    jsCode += '      showMessage(variable + " = " + lists[list][index], "success");\n';
+    jsCode += '    }\n';
+    jsCode += '  }\n\n';
+    jsCode += '  function renderList(name) {\n';
+    jsCode += '    var old = document.querySelector(".app-list[data-list=\\"" + name + "\\"]");\n';
+    jsCode += '    if (old) old.remove();\n';
+    jsCode += '    if (!lists[name] || lists[name].length === 0) return;\n';
+    jsCode += '    var div = document.createElement("div");\n';
+    jsCode += '    div.className = "app-list";\n';
+    jsCode += '    div.dataset.list = name;\n';
+    jsCode += '    lists[name].forEach(function(item, i) {\n';
+    jsCode += '      var el = document.createElement("div");\n';
+    jsCode += '      el.className = "app-list-item";\n';
+    jsCode += '      el.textContent = (i+1) + ". " + item;\n';
+    jsCode += '      div.appendChild(el);\n';
+    jsCode += '    });\n';
+    jsCode += '    document.querySelector(".app-container").appendChild(div);\n';
+    jsCode += '  }\n\n';
+    jsCode += '  function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }\n\n';
+    jsCode += '  // === ВЫПОЛНЕНИЕ ===\n';
+    jsCode += '  async function runApp() {\n';
+    jsCode += '    var container = document.querySelector(".app-container");\n';
 
-      function showMessage(text, type = 'info') {
-        const el = document.createElement('div');
-        el.className = \`app-message \${type}\`;
-        el.textContent = text;
-        const container = document.querySelector('.app-container');
-        container.appendChild(el);
-        if (msgTimeout) clearTimeout(msgTimeout);
-        msgTimeout = setTimeout(() => {
-          if (el.parentNode) el.remove();
-        }, 3000);
-      }
-
-      function setVar(name, value) { state[name] = value; }
-      function getVar(name) { return state[name] !== undefined ? state[name] : 0; }
-
-      function inputDialog(prompt, variable) {
-        const val = prompt(prompt);
-        if (val !== null) {
-          state[variable] = val;
-          showMessage(\`\${variable} = \${val}\`, 'success');
-        }
-      }
-
-      function addToList(list, value) {
-        if (!lists[list]) lists[list] = [];
-        lists[list].push(value);
-        renderList(list);
-      }
-
-      function getFromList(list, index, variable) {
-        if (lists[list] && lists[list][index] !== undefined) {
-          state[variable] = lists[list][index];
-          showMessage(\`\${variable} = \${lists[list][index]}\`, 'success');
-        }
-      }
-
-      function renderList(name) {
-        const old = document.querySelector(\`.app-list[data-list="\${name}"]\`);
-        if (old) old.remove();
-        if (!lists[name] || lists[name].length === 0) return;
-        const div = document.createElement('div');
-        div.className = 'app-list';
-        div.dataset.list = name;
-        lists[name].forEach((item, i) => {
-          const el = document.createElement('div');
-          el.className = 'app-list-item';
-          el.textContent = \`\${i+1}. \${item}\`;
-          div.appendChild(el);
-        });
-        document.querySelector('.app-container').appendChild(div);
-      }
-
-      function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-      // === ВЫПОЛНЕНИЕ ===
-      async function runApp() {
-        const container = document.querySelector('.app-container');
-    \`;
-
-    let buttonActions = '';
-    let openBlocks = 0;
-
-    scriptBlocks.forEach((block, idx) => {
+    scriptBlocks.forEach(function(block) {
       switch (block.type) {
         case 'show_message':
-          jsCode += `        showMessage(\`${block.args.text}\`, 'info');\n`;
+          jsCode += '    showMessage("' + block.args.text + '", "info");\n';
           break;
         case 'set_var':
-          jsCode += `        setVar('${block.args.name}', ${block.args.value});\n`;
+          jsCode += '    setVar("' + block.args.name + '", ' + block.args.value + ');\n';
           break;
         case 'if_var':
-          jsCode += `        if (getVar('${block.args.name}') ${block.args.operator} ${block.args.value}) {\n`;
-          openBlocks++;
+          jsCode += '    if (getVar("' + block.args.name + '") ' + block.args.operator + ' ' + block.args.value + ') {\n';
           break;
         case 'input_dialog':
-          jsCode += `        inputDialog('${block.args.prompt}', '${block.args.variable}');\n`;
+          jsCode += '    inputDialog("' + block.args.prompt + '", "' + block.args.variable + '");\n';
           break;
         case 'button':
-          const action = block.args.action || 'showMessage("Кнопка нажата!", "success")';
-          jsCode += `        const btn${block.id} = document.createElement('button');\n`;
-          jsCode += `        btn${block.id}.className = 'app-btn ${block.args.style || 'primary'}';\n`;
-          jsCode += `        btn${block.id}.textContent = '${block.args.label}';\n`;
-          jsCode += `        btn${block.id}.onclick = () => { ${action} };\n`;
-          jsCode += `        container.appendChild(btn${block.id});\n`;
+          var action = block.args.action || 'showMessage("Кнопка нажата!", "success")';
+          jsCode += '    var btn' + block.id + ' = document.createElement("button");\n';
+          jsCode += '    btn' + block.id + '.className = "app-btn ' + (block.args.style || 'primary') + '";\n';
+          jsCode += '    btn' + block.id + '.textContent = "' + block.args.label + '";\n';
+          jsCode += '    btn' + block.id + '.onclick = function() { ' + action + '; };\n';
+          jsCode += '    container.appendChild(btn' + block.id + ');\n';
           break;
         case 'text':
-          jsCode += `        const txt${block.id} = document.createElement('div');\n`;
-          jsCode += `        txt${block.id}.className = 'app-text';\n`;
-          jsCode += `        txt${block.id}.style.fontSize = '${block.args.size || '16px'}';\n`;
-          jsCode += `        txt${block.id}.style.color = '${block.args.color || '#333'}';\n`;
-          jsCode += `        txt${block.id}.textContent = '${block.args.content}';\n`;
-          jsCode += `        container.appendChild(txt${block.id});\n`;
+          jsCode += '    var txt' + block.id + ' = document.createElement("div");\n';
+          jsCode += '    txt' + block.id + '.className = "app-text";\n';
+          jsCode += '    txt' + block.id + '.style.fontSize = "' + (block.args.size || '16px') + '";\n';
+          jsCode += '    txt' + block.id + '.style.color = "' + (block.args.color || '#333') + '";\n';
+          jsCode += '    txt' + block.id + '.textContent = "' + block.args.content + '";\n';
+          jsCode += '    container.appendChild(txt' + block.id + ');\n';
           break;
         case 'input':
-          jsCode += `        const inp${block.id} = document.createElement('input');\n`;
-          jsCode += `        inp${block.id}.className = 'app-input';\n`;
-          jsCode += `        inp${block.id}.placeholder = '${block.args.placeholder}';\n`;
-          jsCode += `        inp${block.id}.value = '${block.args.value || ''}';\n`;
-          jsCode += `        container.appendChild(inp${block.id});\n`;
+          jsCode += '    var inp' + block.id + ' = document.createElement("input");\n';
+          jsCode += '    inp' + block.id + '.className = "app-input";\n';
+          jsCode += '    inp' + block.id + '.placeholder = "' + block.args.placeholder + '";\n';
+          jsCode += '    inp' + block.id + '.value = "' + (block.args.value || '') + '";\n';
+          jsCode += '    container.appendChild(inp' + block.id + ');\n';
           break;
         case 'image':
-          jsCode += `        const img${block.id} = document.createElement('img');\n`;
-          jsCode += `        img${block.id}.className = 'app-image';\n`;
-          jsCode += `        img${block.id}.src = '${block.args.src || 'https://via.placeholder.com/150x100'}';\n`;
-          jsCode += `        img${block.id}.alt = '${block.args.alt || 'image'}';\n`;
-          jsCode += `        container.appendChild(img${block.id});\n`;
+          jsCode += '    var img' + block.id + ' = document.createElement("img");\n';
+          jsCode += '    img' + block.id + '.className = "app-image";\n';
+          jsCode += '    img' + block.id + '.src = "' + (block.args.src || 'https://via.placeholder.com/150x100') + '";\n';
+          jsCode += '    img' + block.id + '.alt = "' + (block.args.alt || 'image') + '";\n';
+          jsCode += '    container.appendChild(img' + block.id + ');\n';
           break;
         case 'container':
-          jsCode += `        const cont${block.id} = document.createElement('div');\n`;
-          jsCode += `        cont${block.id}.className = 'app-container-box';\n`;
-          jsCode += `        cont${block.id}.style.background = '${block.args.bg || '#f8f9fa'}';\n`;
-          jsCode += `        cont${block.id}.style.padding = '${block.args.padding || '16px'}';\n`;
-          jsCode += `        cont${block.id}.style.gap = '${block.args.gap || '8px'}';\n`;
-          jsCode += `        container.appendChild(cont${block.id});\n`;
+          jsCode += '    var cont' + block.id + ' = document.createElement("div");\n';
+          jsCode += '    cont' + block.id + '.className = "app-container-box";\n';
+          jsCode += '    cont' + block.id + '.style.background = "' + (block.args.bg || '#f8f9fa') + '";\n';
+          jsCode += '    cont' + block.id + '.style.padding = "' + (block.args.padding || '16px') + '";\n';
+          jsCode += '    cont' + block.id + '.style.gap = "' + (block.args.gap || '8px') + '";\n';
+          jsCode += '    container.appendChild(cont' + block.id + ');\n';
           break;
         case 'loop':
-          jsCode += `        for (let i = 0; i < ${block.args.times}; i++) {\n`;
-          openBlocks++;
+          jsCode += '    for (var i = 0; i < ' + block.args.times + '; i++) {\n';
           break;
         case 'delay':
-          jsCode += `        await delay(${block.args.ms});\n`;
+          jsCode += '    await delay(' + block.args.ms + ');\n';
           break;
         case 'list_add':
-          jsCode += `        addToList('${block.args.list}', '${block.args.value}');\n`;
+          jsCode += '    addToList("' + block.args.list + '", "' + block.args.value + '");\n';
           break;
         case 'list_get':
-          jsCode += `        getFromList('${block.args.list}', ${block.args.index}, '${block.args.variable}');\n`;
+          jsCode += '    getFromList("' + block.args.list + '", ' + block.args.index + ', "' + block.args.variable + '");\n';
           break;
         default:
           break;
       }
     });
 
-    // Закрываем все открытые блоки
-    for (let i = 0; i < openBlocks; i++) {
-      jsCode += `        }\n`;
-    }
-
-    jsCode += `
-      }
-      runApp();
-    <\/script>
-    `;
+    jsCode += '  }\n';
+    jsCode += '  runApp();\n';
+    jsCode += '</script>';
 
     html += jsCode;
-    html += `
-      </div>
-    </body>
-    </html>
-    `;
+    html += '  </div>\n';
+    html += '</body>\n';
+    html += '</html>';
 
     preview.srcdoc = html;
     generateCode();
@@ -798,68 +773,63 @@ app.get('/', (req, res) => {
   // 4. ГЕНЕРАЦИЯ КОДА
   // ============================================
   function generateCode() {
-    const output = document.getElementById('code-output');
-    let code = '';
-    let vars = '';
+    var output = document.getElementById('code-output');
+    var code = '';
+    var vars = '';
 
-    scriptBlocks.forEach(block => {
+    scriptBlocks.forEach(function(block) {
       if (block.type === 'set_var') {
-        vars += `let ${block.args.name} = ${block.args.value};\n`;
+        vars += 'let ' + block.args.name + ' = ' + block.args.value + ';\n';
       }
     });
     if (!vars.includes('asd')) vars += 'let asd = 0;\n';
 
-    let loopCode = '';
-    scriptBlocks.forEach(block => {
+    var loopCode = '';
+    scriptBlocks.forEach(function(block) {
       switch (block.type) {
-        case 'show_message': loopCode += `showMessage("${block.args.text}");\n`; break;
-        case 'set_var': loopCode += `${block.args.name} = ${block.args.value};\n`; break;
-        case 'if_var': loopCode += `if (${block.args.name} ${block.args.operator} ${block.args.value}) {\n`; break;
-        case 'input_dialog': loopCode += `${block.args.variable} = prompt("${block.args.prompt}");\n`; break;
-        case 'button': loopCode += `createButton("${block.args.label}", () => { ${block.args.action} });\n`; break;
-        case 'text': loopCode += `createText("${block.args.content}");\n`; break;
-        case 'input': loopCode += `createInput("${block.args.placeholder}");\n`; break;
-        case 'image': loopCode += `createImage("${block.args.src}");\n`; break;
-        case 'container': loopCode += `createContainer();\n`; break;
-        case 'loop': loopCode += `for (let i = 0; i < ${block.args.times}; i++) {\n`; break;
-        case 'delay': loopCode += `await delay(${block.args.ms});\n`; break;
-        case 'list_add': loopCode += `addToList("${block.args.list}", "${block.args.value}");\n`; break;
-        case 'list_get': loopCode += `getFromList("${block.args.list}", ${block.args.index}, "${block.args.variable}");\n`; break;
+        case 'show_message': loopCode += 'showMessage("' + block.args.text + '");\n'; break;
+        case 'set_var': loopCode += block.args.name + ' = ' + block.args.value + ';\n'; break;
+        case 'if_var': loopCode += 'if (' + block.args.name + ' ' + block.args.operator + ' ' + block.args.value + ') {\n'; break;
+        case 'input_dialog': loopCode += block.args.variable + ' = prompt("' + block.args.prompt + '");\n'; break;
+        case 'button': loopCode += 'createButton("' + block.args.label + '", function() { ' + block.args.action + ' });\n'; break;
+        case 'text': loopCode += 'createText("' + block.args.content + '");\n'; break;
+        case 'input': loopCode += 'createInput("' + block.args.placeholder + '");\n'; break;
+        case 'image': loopCode += 'createImage("' + block.args.src + '");\n'; break;
+        case 'container': loopCode += 'createContainer();\n'; break;
+        case 'loop': loopCode += 'for (var i = 0; i < ' + block.args.times + '; i++) {\n'; break;
+        case 'delay': loopCode += 'await delay(' + block.args.ms + ');\n'; break;
+        case 'list_add': loopCode += 'addToList("' + block.args.list + '", "' + block.args.value + '");\n'; break;
+        case 'list_get': loopCode += 'getFromList("' + block.args.list + '", ' + block.args.index + ', "' + block.args.variable + '");\n'; break;
         default: break;
       }
     });
 
-    let fullCode = `
-// ==========================================
-// App Builder Pro — сгенерированный код
-// ==========================================
+    var fullCode = '\n';
+    fullCode += '// ==========================================\n';
+    fullCode += '// App Builder Pro — сгенерированный код\n';
+    fullCode += '// ==========================================\n\n';
+    fullCode += vars;
+    fullCode += '\n// Функции UI\n';
+    fullCode += 'function showMessage(text, type) { /* ... */ }\n';
+    fullCode += 'function createButton(label, action) { /* ... */ }\n';
+    fullCode += 'function createText(content) { /* ... */ }\n';
+    fullCode += 'function createInput(placeholder) { /* ... */ }\n';
+    fullCode += 'function createImage(src) { /* ... */ }\n';
+    fullCode += 'function createContainer() { /* ... */ }\n';
+    fullCode += 'function addToList(list, value) { /* ... */ }\n';
+    fullCode += 'function getFromList(list, index, variable) { /* ... */ }\n';
+    fullCode += 'function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }\n\n';
+    fullCode += '// Основная программа\n';
+    fullCode += 'async function main() {\n';
+    fullCode += loopCode;
+    fullCode += '}\n\n';
+    fullCode += 'main();\n';
 
-${vars}
-
-// Функции UI
-function showMessage(text, type) { /* ... */ }
-function createButton(label, action) { /* ... */ }
-function createText(content) { /* ... */ }
-function createInput(placeholder) { /* ... */ }
-function createImage(src) { /* ... */ }
-function createContainer() { /* ... */ }
-function addToList(list, value) { /* ... */ }
-function getFromList(list, index, variable) { /* ... */ }
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// Основная программа
-async function main() {
-${loopCode}
-}
-
-main();
-`;
-
-    let highlighted = fullCode
-      .replace(/\/\/.*/g, match => `<span class="comment">${match}</span>`)
-      .replace(/\b(let|const|var|function|if|for|await|async|return|new)\b/g, match => `<span class="keyword">${match}</span>`)
-      .replace(/"([^"]*)"/g, (match, p1) => `<span class="string">"${p1}"</span>`)
-      .replace(/\b(\d+)\b/g, match => `<span class="number">${match}</span>`);
+    var highlighted = fullCode
+      .replace(/\/\/.*/g, function(match) { return '<span class="comment">' + match + '</span>'; })
+      .replace(/\b(let|const|var|function|if|for|await|async|return|new)\b/g, function(match) { return '<span class="keyword">' + match + '</span>'; })
+      .replace(/"([^"]*)"/g, function(match, p1) { return '<span class="string">"' + p1 + '"</span>'; })
+      .replace(/\b(\d+)\b/g, function(match) { return '<span class="number">' + match + '</span>'; });
 
     output.innerHTML = highlighted;
   }
@@ -868,11 +838,11 @@ main();
   // 5. ПЕРЕМЕННЫЕ
   // ============================================
   function updateVariables() {
-    const list = document.getElementById('var-list');
+    var list = document.getElementById('var-list');
     list.innerHTML = '';
-    for (let key in variables) {
-      const v = variables[key];
-      list.innerHTML += `<div class="var-item"><span>${key}</span><span class="val">${v.value}</span><span class="type">${v.type}</span></div>`;
+    for (var key in variables) {
+      var v = variables[key];
+      list.innerHTML += '<div class="var-item"><span>' + key + '</span><span class="val">' + v.value + '</span><span class="type">' + v.type + '</span></div>';
     }
   }
 
@@ -883,13 +853,13 @@ main();
   // ============================================
   // 6. УПРАВЛЕНИЕ
   // ============================================
-  document.getElementById('run-btn').addEventListener('click', () => {
+  document.getElementById('run-btn').addEventListener('click', function() {
     generateApp();
     setStatus('▶️ Запущено');
-    setTimeout(() => setStatus('✅ Готово'), 1000);
+    setTimeout(function() { setStatus('✅ Готово'); }, 1000);
   });
 
-  document.getElementById('clear-btn').addEventListener('click', () => {
+  document.getElementById('clear-btn').addEventListener('click', function() {
     scriptBlocks = [];
     blockIdCounter = 0;
     renderScript();
@@ -897,14 +867,14 @@ main();
     setStatus('🗑️ Очищено');
   });
 
-  document.getElementById('export-btn').addEventListener('click', () => {
+  document.getElementById('export-btn').addEventListener('click', function() {
     try {
-      const iframe = document.getElementById('preview');
-      const html = iframe.srcdoc || iframe.contentDocument?.documentElement?.outerHTML;
+      var iframe = document.getElementById('preview');
+      var html = iframe.srcdoc;
       if (html) {
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        var blob = new Blob([html], { type: 'text/html' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
         a.href = url;
         a.download = 'my-app.html';
         a.click();
@@ -921,34 +891,33 @@ main();
   // ============================================
   // 7. ПЕРЕМЕННАЯ (модалка)
   // ============================================
-  document.getElementById('var-btn').addEventListener('click', () => {
-    const modal = document.getElementById('modal');
-    const body = document.getElementById('modal-body');
+  document.getElementById('var-btn').addEventListener('click', function() {
+    var modal = document.getElementById('modal');
+    var body = document.getElementById('modal-body');
     document.getElementById('modal-title').textContent = '➕ Новая переменная';
-    body.innerHTML = `
-      <label>Имя переменной</label>
-      <input id="var-name" value="myVar" />
-      <label>Тип</label>
-      <select id="var-type">
-        <option value="int">int</option>
-        <option value="string">string</option>
-        <option value="boolean">boolean</option>
-      </select>
-      <label>Начальное значение</label>
-      <input id="var-value" value="0" />
-    `;
+    body.innerHTML = '';
+    body.innerHTML += '<label>Имя переменной</label>';
+    body.innerHTML += '<input id="var-name" value="myVar" />';
+    body.innerHTML += '<label>Тип</label>';
+    body.innerHTML += '<select id="var-type">';
+    body.innerHTML += '  <option value="int">int</option>';
+    body.innerHTML += '  <option value="string">string</option>';
+    body.innerHTML += '  <option value="boolean">boolean</option>';
+    body.innerHTML += '</select>';
+    body.innerHTML += '<label>Начальное значение</label>';
+    body.innerHTML += '<input id="var-value" value="0" />';
     modal.classList.add('show');
-    document.getElementById('modal-ok').onclick = () => {
-      const name = document.getElementById('var-name').value.trim();
-      const type = document.getElementById('var-type').value;
-      const value = document.getElementById('var-value').value;
+    document.getElementById('modal-ok').onclick = function() {
+      var name = document.getElementById('var-name').value.trim();
+      var type = document.getElementById('var-type').value;
+      var value = document.getElementById('var-value').value;
       if (name && !variables[name]) {
         variables[name] = { 
           value: type === 'int' ? parseInt(value) || 0 : type === 'boolean' ? value === 'true' : value, 
-          type 
+          type: type
         };
         updateVariables();
-        setStatus(`✅ Переменная ${name} создана`);
+        setStatus('✅ Переменная ' + name + ' создана');
       } else if (variables[name]) {
         alert('❌ Переменная с таким именем уже существует!');
       } else {
@@ -956,14 +925,16 @@ main();
       }
       modal.classList.remove('show');
     };
-    document.getElementById('modal-close').onclick = () => modal.classList.remove('show');
+    document.getElementById('modal-close').onclick = function() {
+      modal.classList.remove('show');
+    };
   });
 
   // ============================================
   // 8. ОБУЧЕНИЕ
   // ============================================
-  let lessonIndex = 0;
-  const lessons = [
+  var lessonIndex = 0;
+  var lessons = [
     {
       title: '📚 Урок 1: Первое приложение',
       text: 'Перетащи блок "Показать сообщение" в область скрипта и нажми "Запустить"',
@@ -991,55 +962,53 @@ main();
     }
   ];
 
-  document.getElementById('lesson-btn').addEventListener('click', () => {
-    const modal = document.getElementById('modal');
-    const body = document.getElementById('modal-body');
-    const lesson = lessons[lessonIndex % lessons.length];
+  document.getElementById('lesson-btn').addEventListener('click', function() {
+    var modal = document.getElementById('modal');
+    var body = document.getElementById('modal-body');
+    var lesson = lessons[lessonIndex % lessons.length];
     document.getElementById('modal-title').textContent = lesson.title;
-    body.innerHTML = `
-      <div style="color:#fff;font-size:14px;line-height:1.8;padding:8px 0;">
-        <p>${lesson.text}</p>
-        <p style="color:#888;font-size:12px;margin-top:8px;">
-          💡 Нужные блоки: <strong style="color:#00d2d3;">${lesson.blocks.join(', ')}</strong>
-        </p>
-        <p style="color:#888;font-size:11px;margin-top:8px;">
-          Урок ${(lessonIndex % lessons.length) + 1} из ${lessons.length}
-        </p>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button onclick="loadLessonBlocks('${lesson.blocks.join(',')}')" style="flex:1;background:#00d2d3;border:none;padding:8px;border-radius:6px;color:#0a0a1a;font-weight:700;cursor:pointer;">
-          🚀 Загрузить пример
-        </button>
-      </div>
-    `;
+    body.innerHTML = '';
+    body.innerHTML += '<div style="color:#fff;font-size:14px;line-height:1.8;padding:8px 0;">';
+    body.innerHTML += '  <p>' + lesson.text + '</p>';
+    body.innerHTML += '  <p style="color:#888;font-size:12px;margin-top:8px;">';
+    body.innerHTML += '    💡 Нужные блоки: <strong style="color:#00d2d3;">' + lesson.blocks.join(', ') + '</strong>';
+    body.innerHTML += '  </p>';
+    body.innerHTML += '  <p style="color:#888;font-size:11px;margin-top:8px;">';
+    body.innerHTML += '    Урок ' + ((lessonIndex % lessons.length) + 1) + ' из ' + lessons.length;
+    body.innerHTML += '  </p>';
+    body.innerHTML += '</div>';
+    body.innerHTML += '<div style="display:flex;gap:8px;margin-top:12px;">';
+    body.innerHTML += '  <button id="load-lesson-btn" style="flex:1;background:#00d2d3;border:none;padding:8px;border-radius:6px;color:#0a0a1a;font-weight:700;cursor:pointer;">';
+    body.innerHTML += '    🚀 Загрузить пример';
+    body.innerHTML += '  </button>';
+    body.innerHTML += '</div>';
     modal.classList.add('show');
     
-    // Сохраняем функцию в глобальном контексте
-    window.loadLessonBlocks = (types) => {
-      const blockTypes = types.split(',');
+    document.getElementById('load-lesson-btn').addEventListener('click', function() {
+      var types = lesson.blocks;
       scriptBlocks = [];
       blockIdCounter = 0;
-      blockTypes.forEach(type => {
-        const block = {
+      types.forEach(function(type) {
+        var block = {
           id: ++blockIdCounter,
-          type: type.trim(),
-          args: getDefaultArgs(type.trim()),
+          type: type,
+          args: getDefaultArgs(type),
           children: []
         };
         scriptBlocks.push(block);
       });
       renderScript();
       generateApp();
-      setStatus(`📚 Урок загружен!`);
+      setStatus('📚 Урок загружен!');
       modal.classList.remove('show');
       lessonIndex++;
-    };
+    });
 
-    document.getElementById('modal-close').onclick = () => {
+    document.getElementById('modal-close').onclick = function() {
       modal.classList.remove('show');
       lessonIndex++;
     };
-    document.getElementById('modal-ok').onclick = () => {
+    document.getElementById('modal-ok').onclick = function() {
       modal.classList.remove('show');
       lessonIndex++;
     };
@@ -1058,7 +1027,7 @@ main();
 </script>
 </body>
 </html>
-  `);
+\`);
 });
 
 // ============================================
@@ -1066,6 +1035,5 @@ main();
 // ============================================
 app.listen(PORT, () => {
   console.log(`🚀 App Builder Pro запущен на http://localhost:${PORT}`);
-  console.log(`📚 Обучение: ${PORT === 3000 ? 'http://localhost:3000' : 'на сервере'}`);
   console.log(`✅ ВСЁ РАБОТАЕТ! Ошибок нет!`);
 });
